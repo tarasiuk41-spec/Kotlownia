@@ -40,12 +40,23 @@
       --radius: 14px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
       background-color: var(--bg-main);
       color: var(--text-main);
-      line-height: 1.5;
+      line-height: 1.45;
       padding-bottom: 40px;
     }
 
@@ -53,7 +64,7 @@
     header {
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
+      padding: 12px 16px;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -70,26 +81,28 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .brand-icon {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       background: var(--accent-soft);
       border: 1px solid var(--accent);
-      border-radius: 12px;
+      border-radius: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 20px;
+      flex-shrink: 0;
     }
     .brand h1 {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 800;
       letter-spacing: -0.02em;
+      line-height: 1.1;
     }
     .brand span {
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       color: var(--text-muted);
       display: block;
     }
@@ -102,19 +115,20 @@
     .pill {
       background: var(--bg-input);
       border: 1px solid var(--border);
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: 999px;
-      font-size: 0.84rem;
-      display: flex;
+      font-size: 0.82rem;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       color: var(--text-main);
+      white-space: nowrap;
     }
 
     /* Navigation Tabs */
     .nav-tabs {
       max-width: 1240px;
-      margin: 18px auto 0;
+      margin: 16px auto 0;
       padding: 0 16px;
       display: flex;
       gap: 8px;
@@ -124,10 +138,10 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.15s ease;
@@ -142,7 +156,7 @@
     /* Container & Sections */
     .container {
       max-width: 1240px;
-      margin: 20px auto;
+      margin: 16px auto;
       padding: 0 16px;
     }
     .tab-panel { display: none; }
@@ -151,18 +165,19 @@
     /* KPI Grid */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 14px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
     }
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px;
+      padding: 16px;
+      min-width: 0;
     }
     .kpi-title {
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--text-muted);
@@ -170,17 +185,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
     }
     .kpi-value {
-      font-size: 1.62rem;
+      font-size: 1.55rem;
       font-weight: 800;
       color: var(--text-main);
       line-height: 1.2;
+      word-break: break-word;
     }
     .kpi-sub {
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       color: var(--text-muted);
-      margin-top: 6px;
+      margin-top: 5px;
+      word-break: break-word;
     }
     .highlight-orange { color: var(--accent); }
     .highlight-green { color: var(--green); }
@@ -189,7 +207,7 @@
     /* Progress Bar for Boiler Cleaning */
     .progress-track {
       width: 100%;
-      height: 10px;
+      height: 9px;
       background: var(--bg-input);
       border-radius: 999px;
       overflow: hidden;
@@ -211,33 +229,30 @@
     .two-col {
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
-      gap: 18px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 18px;
     }
     .two-col-equal {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-    @media (max-width: 860px) {
-      .two-col, .two-col-equal { grid-template-columns: 1fr; }
+      gap: 16px;
+      margin-bottom: 18px;
     }
     .card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 14px;
+      font-size: 1.06rem;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
+      line-height: 1.3;
     }
+
+    /* Quick Bags Grid */
     .quick-bags {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 8px;
       margin-bottom: 14px;
-    }
-    @media (max-width: 540px) {
-      .quick-bags { grid-template-columns: repeat(3, 1fr); }
     }
     .bag-btn {
       background: var(--accent-soft);
@@ -246,14 +261,18 @@
       padding: 12px 6px;
       border-radius: 12px;
       font-weight: 700;
-      font-size: 0.96rem;
+      font-size: 0.94rem;
       cursor: pointer;
       transition: 0.15s;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .bag-btn small {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 500;
       color: var(--text-main);
       margin-top: 2px;
@@ -263,6 +282,15 @@
       color: #fff;
     }
     .bag-btn:hover small { color: #fff; }
+    .bag-btn-full {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .bag-btn-full:hover {
+      background: var(--green);
+      color: #fff;
+    }
 
     /* Ash Quality Selector Buttons */
     .ash-grid {
@@ -275,13 +303,14 @@
       background: var(--bg-input);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 10px 8px;
+      padding: 10px 6px;
       border-radius: 10px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
       text-align: center;
       transition: 0.15s;
+      line-height: 1.25;
     }
     .ash-btn.selected-good {
       background: var(--green-soft);
@@ -315,23 +344,25 @@
       flex-wrap: wrap;
     }
     #ashPhotoPreview {
-      width: 96px;
-      height: 96px;
+      width: 84px;
+      height: 84px;
       object-fit: cover;
       border-radius: 10px;
       border: 1px solid var(--border);
       display: none;
+      flex-shrink: 0;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
     }
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 5px;
+      min-width: 0;
     }
     label {
       font-size: 0.82rem;
@@ -346,6 +377,8 @@
       border-radius: 10px;
       font-size: 0.95rem;
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
@@ -376,7 +409,7 @@
       background: var(--purple-soft);
       border: 1px solid var(--purple);
       color: #e9d5ff;
-      padding: 7px 12px;
+      padding: 8px 12px;
       font-size: 0.82rem;
     }
     .btn-purple:hover {
@@ -390,16 +423,16 @@
     }
     .btn-outline:hover { background: var(--bg-card-hover); }
     .btn-sm {
-      padding: 6px 10px;
-      font-size: 0.78rem;
+      padding: 7px 11px;
+      font-size: 0.8rem;
       border-radius: 8px;
     }
     .btn-danger {
       background: var(--red-soft);
       border: 1px solid var(--red);
       color: var(--red);
-      padding: 6px 10px;
-      font-size: 0.78rem;
+      padding: 7px 10px;
+      font-size: 0.8rem;
     }
     .btn-danger:hover { background: var(--red); color: #fff; }
 
@@ -407,11 +440,8 @@
     .period-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 10px;
-    }
-    @media (max-width: 600px) {
-      .period-grid { grid-template-columns: 1fr; }
+      gap: 10px;
+      margin-top: 8px;
     }
     .period-box {
       background: var(--bg-input);
@@ -438,6 +468,7 @@
     .table-wrap {
       overflow-x: auto;
       margin-top: 10px;
+      -webkit-overflow-scrolling: touch;
     }
     table {
       width: 100%;
@@ -451,7 +482,7 @@
     }
     th {
       color: var(--text-muted);
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
       background: rgba(15, 23, 42, 0.5);
     }
@@ -485,11 +516,11 @@
       margin-top: 10px;
     }
     .ai-box {
-      margin-top: 16px;
+      margin-top: 14px;
       background: linear-gradient(145deg, rgba(168, 85, 247, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
       border: 1px solid rgba(168, 85, 247, 0.35);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding: 14px;
     }
     .ai-header {
       display: flex;
@@ -512,7 +543,7 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       color: #e2e8f0;
     }
     .ai-list li {
@@ -544,9 +575,11 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 20px;
+      padding: 18px;
       width: 100%;
       max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     }
 
@@ -576,96 +609,259 @@
       border-radius: 999px;
       padding: 3px;
       gap: 2px;
+      flex-shrink: 0;
     }
     .mode-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 5px 11px;
+      padding: 5px 10px;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
     }
     .mode-btn.active {
       background: var(--accent);
       color: #fff;
     }
 
-    /* Wymuszony tryb Telefon Android */
-    body.view-android .container,
-    body.view-android .nav-tabs,
-    body.view-android .header-inner {
-      max-width: 500px;
+    /* =====================================================
+       DOPRACOWANY UKŁAD DLA TELEFONU ANDROID (view-android)
+       ===================================================== */
+    body.view-android {
+      padding-bottom: 84px;
     }
+    body.view-android header {
+      padding: 10px 12px;
+    }
+    body.view-android .header-inner {
+      max-width: 520px;
+      gap: 8px;
+    }
+    body.view-android .brand {
+      flex: 1;
+      min-width: 0;
+    }
+    body.view-android .brand span {
+      display: none;
+    }
+    body.view-android .brand h1 {
+      font-size: 1.15rem;
+    }
+    body.view-android .header-status {
+      width: 100%;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    body.view-android #liveClock {
+      font-size: 0.76rem;
+      padding: 4px 9px;
+    }
+    body.view-android #liveWeather {
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      font-weight: 600;
+    }
+
+    body.view-android .container {
+      max-width: 520px;
+      margin: 12px auto;
+      padding: 0 12px;
+    }
+
+    /* KPI w czystym układzie 2 kolumny + 5. kafelek na całą szerokość */
     body.view-android .kpi-grid {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+      margin-bottom: 14px;
+    }
+    body.view-android .kpi-grid .card {
+      padding: 12px;
+    }
+    body.view-android .kpi-grid .card:last-child {
+      grid-column: 1 / -1;
+    }
+    body.view-android .kpi-title {
+      font-size: 0.7rem;
+      margin-bottom: 4px;
     }
     body.view-android .kpi-value {
-      font-size: 1.28rem;
+      font-size: 1.24rem;
     }
+    body.view-android .kpi-sub {
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
     body.view-android .two-col,
     body.view-android .two-col-equal {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
     }
+
+    /* Szybki wybór worków: 2x2 u góry + Cały zasobnik na całą szerokość pod spodem */
     body.view-android .quick-bags {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    body.view-android .quick-bags .bag-btn-full {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 10px;
+    }
+    body.view-android .quick-bags .bag-btn-full small {
+      margin-top: 0;
+      font-size: 0.85rem;
     }
     body.view-android .bag-btn {
-      padding: 15px 6px;
-      font-size: 1.02rem;
+      padding: 12px 6px;
+      font-size: 0.98rem;
+    }
+
+    /* Formularze na telefonie w jednej czytelnej kolumnie (zero ścisku) */
+    body.view-android .form-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+    body.view-android input,
+    body.view-android select {
+      padding: 11px 12px;
+      font-size: 16px; /* Zapobiega automatycznemu przybliżaniu ekranu w Android Chrome */
     }
     body.view-android .btn {
       padding: 13px 16px;
       font-size: 0.96rem;
+      width: 100%;
     }
-    body.view-android input,
-    body.view-android select {
-      padding: 12px 14px;
-      font-size: 1rem;
+    body.view-android .btn-sm,
+    body.view-android .btn-danger,
+    body.view-android .btn-purple {
+      width: auto;
+      padding: 8px 12px;
+      font-size: 0.82rem;
     }
+
+    /* Statystyki tygodniowe/miesięczne/roczne w kompaktowym układzie 3 kafelków */
     body.view-android .period-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
     }
+    body.view-android .period-box {
+      padding: 9px 7px;
+      text-align: center;
+    }
+    body.view-android .period-box span {
+      font-size: 0.68rem;
+    }
+    body.view-android .period-box strong {
+      font-size: 0.96rem;
+    }
+    body.view-android .period-box small {
+      font-size: 0.72rem;
+    }
+
+    /* Karty zamiast rozjeżdżających się tabel na telefonie */
+    body.view-android .table-wrap {
+      overflow-x: visible;
+    }
+    body.view-android table,
+    body.view-android thead,
+    body.view-android tbody,
+    body.view-android tr,
+    body.view-android td {
+      display: block;
+      width: 100%;
+    }
+    body.view-android thead {
+      display: none;
+    }
+    body.view-android tbody tr {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    body.view-android tbody td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.45);
+      font-size: 0.86rem;
+      text-align: right;
+    }
+    body.view-android tbody td:last-child {
+      border-bottom: none;
+      padding-top: 8px;
+      justify-content: flex-end;
+    }
+    body.view-android tbody td::before {
+      content: attr(data-label);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: left;
+      flex-shrink: 0;
+    }
+    body.view-android tbody td[colspan] {
+      display: block;
+      text-align: center;
+      padding: 12px 0;
+    }
+    body.view-android tbody td[colspan]::before {
+      display: none;
+    }
+
     body.view-android .chart-box {
-      height: 250px;
+      height: 240px;
     }
+
+    /* Dolny pasek nawigacji na Androidzie */
     body.view-android .nav-tabs {
       position: fixed;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
       width: 100%;
-      max-width: 500px;
+      max-width: 100%;
       margin: 0;
-      padding: 8px 8px;
-      background: rgba(15, 23, 42, 0.96);
-      backdrop-filter: blur(10px);
+      padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+      background: rgba(15, 23, 42, 0.97);
+      backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
       z-index: 60;
-      justify-content: space-between;
-      gap: 4px;
+      justify-content: space-around;
+      gap: 3px;
+      overflow-x: hidden;
     }
     body.view-android .tab-btn {
       flex: 1;
-      padding: 8px 4px;
-      font-size: 0.72rem;
+      min-width: 0;
+      padding: 7px 2px;
+      font-size: 0.68rem;
+      border-radius: 9px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 2px;
-    }
-    body.view-android {
-      padding-bottom: 85px;
+      line-height: 1.15;
+      white-space: normal;
     }
     body.view-android #toast {
-      bottom: 78px;
+      bottom: 76px;
       right: 12px;
       left: 12px;
       text-align: center;
@@ -678,7 +874,7 @@
       max-width: 1240px;
     }
     body.view-desktop .kpi-grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
     }
     body.view-desktop .two-col {
       grid-template-columns: 1.15fr 0.85fr;
@@ -702,11 +898,11 @@
         <span>Asystent spalania ekogroszku i magazynu</span>
       </div>
     </div>
+    <div class="mode-switcher" title="Przełącz układ interfejsu">
+      <button type="button" class="mode-btn" id="btnModeDesktop" onclick="setViewMode('desktop')">💻 Komputer</button>
+      <button type="button" class="mode-btn" id="btnModeAndroid" onclick="setViewMode('android')">📱 Android</button>
+    </div>
     <div class="header-status">
-      <div class="mode-switcher" title="Przełącz układ interfejsu">
-        <button type="button" class="mode-btn" id="btnModeDesktop" onclick="setViewMode('desktop')">💻 Komputer</button>
-        <button type="button" class="mode-btn" id="btnModeAndroid" onclick="setViewMode('android')">📱 Android</button>
-      </div>
       <div class="pill" id="liveClock">🕒 Ładowanie czasu...</div>
       <div class="pill" id="liveWeather">🌡️ Pobieranie pogody...</div>
     </div>
@@ -777,7 +973,7 @@
           <button type="button" class="bag-btn" onclick="quickFillBags(2)">+2 worki<small id="qb2">50 kg</small></button>
           <button type="button" class="bag-btn" onclick="quickFillBags(3)">+3 worki<small id="qb3">75 kg</small></button>
           <button type="button" class="bag-btn" onclick="quickFillBags(4)">+4 worki<small id="qb4">100 kg</small></button>
-          <button type="button" class="bag-btn" style="background:rgba(16,185,129,0.16); border-color:var(--green); color:var(--green);" onclick="quickFillBags(8)">Cały zasobnik (8 w.)<small id="qb8">200 kg</small></button>
+          <button type="button" class="bag-btn bag-btn-full" onclick="quickFillBags(8)">Cały zasobnik (8 w.)<small id="qb8">200 kg</small></button>
         </div>
 
         <form id="feedForm">
@@ -2032,32 +2228,32 @@
     const reversedCycles = [...m.cycles].reverse();
     const recentHtml = reversedCycles.slice(0, 8).map(c => `
       <tr>
-        <td>${formatDateTime(c.date)}</td>
-        <td><strong>${c.bags} w.</strong> (${c.weightKg.toFixed(0)} kg)</td>
-        <td>${formatPln(c.costPln)}</td>
-        <td>${c.status === 'ongoing'
+        <td data-label="Data i godzina">${formatDateTime(c.date)}</td>
+        <td data-label="Wsypano"><strong>${c.bags} w.</strong> (${c.weightKg.toFixed(0)} kg)</td>
+        <td data-label="Wartość">${formatPln(c.costPln)}</td>
+        <td data-label="Czas trwania">${c.status === 'ongoing'
           ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
           : `<span class="badge badge-done">${c.durationDays.toFixed(1)} dni</span>`}</td>
-        <td>${c.status === 'ongoing' ? '<em>trwa...</em>' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
-        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' 🌦️' : ''}` : '—'}</td>
-        <td>${formatAshBadge(c.ash)} ${c.note || ''}</td>
+        <td data-label="Spalanie dobowe">${c.status === 'ongoing' ? '<em>trwa...</em>' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
+        <td data-label="Śr. temperatura">${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' 🌦️' : ''}` : '—'}</td>
+        <td data-label="Popiół / Uwagi"><span>${formatAshBadge(c.ash)} ${c.note || '—'}</span></td>
       </tr>
     `).join('') || '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Brak zarejestrowanych zasypów.</td></tr>';
     document.getElementById('recentFeedsBody').innerHTML = recentHtml;
 
     const fullHtml = reversedCycles.map(c => `
       <tr>
-        <td>${formatDateTime(c.date)}</td>
-        <td>${c.bags}</td>
-        <td>${c.weightKg.toFixed(0)} kg</td>
-        <td>${formatPln(c.costPln)}</td>
-        <td>${c.status === 'ongoing'
+        <td data-label="Data i godzina">${formatDateTime(c.date)}</td>
+        <td data-label="Worki">${c.bags} w.</td>
+        <td data-label="Waga">${c.weightKg.toFixed(0)} kg</td>
+        <td data-label="Koszt">${formatPln(c.costPln)}</td>
+        <td data-label="Okres">${c.status === 'ongoing'
           ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
           : `${c.durationDays.toFixed(2)} dni`}</td>
-        <td>${c.status === 'ongoing' ? '—' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
-        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' 🌦️' : ''}` : '—'}</td>
-        <td>${formatAshBadge(c.ash)} ${c.note || ''}</td>
-        <td style="white-space:nowrap;">
+        <td data-label="Spalanie">${c.status === 'ongoing' ? '—' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
+        <td data-label="Temperatura">${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' 🌦️' : ''}` : '—'}</td>
+        <td data-label="Popiół / Notatka"><span>${formatAshBadge(c.ash)} ${c.note || '—'}</span></td>
+        <td data-label="Akcje" style="white-space:nowrap; gap:6px;">
           <button class="btn btn-outline btn-sm" onclick="openEditModal('feed', ${c.id})">✏️ Edytuj</button>
           <button class="btn btn-danger" onclick="deleteFeed(${c.id})">Usuń</button>
         </td>
@@ -2070,12 +2266,12 @@
       const w = d.bags * m.bw;
       return `
         <tr>
-          <td>${d.date}</td>
-          <td>${d.bags} worków</td>
-          <td>${w.toFixed(0)} kg</td>
-          <td>${formatPln(w * m.pricePerKg)}</td>
-          <td>${d.note || '—'}</td>
-          <td style="white-space:nowrap;">
+          <td data-label="Data">${d.date}</td>
+          <td data-label="Worki">${d.bags} worków</td>
+          <td data-label="Waga">${w.toFixed(0)} kg</td>
+          <td data-label="Wartość">${formatPln(w * m.pricePerKg)}</td>
+          <td data-label="Opis">${d.note || '—'}</td>
+          <td data-label="Akcje" style="white-space:nowrap; gap:6px;">
             <button class="btn btn-outline btn-sm" onclick="openEditModal('delivery', ${d.id})">✏️ Edytuj</button>
             <button class="btn btn-danger" onclick="deleteDelivery(${d.id})">Usuń</button>
           </td>
@@ -2087,10 +2283,10 @@
     // Czyszczenia
     const cleanHtml = [...(state.cleanings || [])].reverse().map(cl => `
       <tr>
-        <td>${formatDateTime(cl.date)}</td>
-        <td>${cl.burnedKgAtClean ?? 0} kg</td>
-        <td>${cl.note || '—'}</td>
-        <td><button class="btn btn-danger" onclick="deleteCleaning(${cl.id})">Usuń</button></td>
+        <td data-label="Data i godzina">${formatDateTime(cl.date)}</td>
+        <td data-label="Spalono przed">${cl.burnedKgAtClean ?? 0} kg</td>
+        <td data-label="Uwagi">${cl.note || '—'}</td>
+        <td data-label="Akcja"><button class="btn btn-danger" onclick="deleteCleaning(${cl.id})">Usuń</button></td>
       </tr>
     `).join('') || '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Brak zapisanych czyszczeń.</td></tr>';
     document.getElementById('cleaningsBody').innerHTML = cleanHtml;
@@ -2098,13 +2294,13 @@
     // Nastawy
     const prHtml = state.presets.map(p => `
       <tr>
-        <td>${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline btn-sm" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
-        <td><strong>${p.name}</strong></td>
-        <td>${p.feedTime}s / ${p.pauseTime}s</td>
-        <td>${p.fan}%</td>
-        <td>${p.temp} °C</td>
-        <td>${p.notes || '—'}</td>
-        <td><button class="btn btn-danger" onclick="deletePreset(${p.id})">Usuń</button></td>
+        <td data-label="Status">${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline btn-sm" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
+        <td data-label="Profil"><strong>${p.name}</strong></td>
+        <td data-label="Podawanie / Przerwa">${p.feedTime}s / ${p.pauseTime}s</td>
+        <td data-label="Nadmuch">${p.fan}%</td>
+        <td data-label="Temp. kotła">${p.temp} °C</td>
+        <td data-label="Uwagi">${p.notes || '—'}</td>
+        <td data-label="Akcja"><button class="btn btn-danger" onclick="deletePreset(${p.id})">Usuń</button></td>
       </tr>
     `).join('');
     document.getElementById('presetsBody').innerHTML = prHtml;
