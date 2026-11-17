@@ -211,9 +211,12 @@
     }
     .quick-bags {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
       margin-bottom: 14px;
+    }
+    @media (max-width: 540px) {
+      .quick-bags { grid-template-columns: repeat(3, 1fr); }
     }
     .bag-btn {
       background: var(--accent-soft);
@@ -524,6 +527,7 @@
           <button type="button" class="bag-btn" onclick="quickFillBags(2)">+2 worki<small id="qb2">50 kg</small></button>
           <button type="button" class="bag-btn" onclick="quickFillBags(3)">+3 worki<small id="qb3">75 kg</small></button>
           <button type="button" class="bag-btn" onclick="quickFillBags(4)">+4 worki<small id="qb4">100 kg</small></button>
+          <button type="button" class="bag-btn" style="background:rgba(16,185,129,0.16); border-color:var(--green); color:var(--green);" onclick="quickFillBags(8)">Cały zasobnik (8 w.)<small id="qb8">200 kg</small></button>
         </div>
 
         <form id="feedForm">
@@ -1263,7 +1267,7 @@
     const m = getCalculatedMetrics();
 
     document.getElementById('lblBagWeight').textContent = m.bw;
-    [1, 2, 3, 4].forEach(n => {
+    [1, 2, 3, 4, 8].forEach(n => {
       const el = document.getElementById(`qb${n}`);
       if (el) el.textContent = `${n * m.bw} kg`;
     });
