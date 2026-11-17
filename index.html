@@ -457,6 +457,128 @@
       z-index: 999;
     }
     #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* Tryb widoku: Komputer vs Telefon Android */
+    .mode-switcher {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Wymuszony tryb Telefon Android */
+    body.view-android .container,
+    body.view-android .nav-tabs,
+    body.view-android .header-inner {
+      max-width: 500px;
+    }
+    body.view-android .kpi-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    body.view-android .kpi-value {
+      font-size: 1.32rem;
+    }
+    body.view-android .two-col,
+    body.view-android .two-col-equal {
+      grid-template-columns: 1fr;
+    }
+    body.view-android .quick-bags {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    body.view-android .bag-btn {
+      padding: 16px 6px;
+      font-size: 1.05rem;
+    }
+    body.view-android .btn {
+      padding: 14px 18px;
+      font-size: 1rem;
+    }
+    body.view-android input,
+    body.view-android select {
+      padding: 12px 14px;
+      font-size: 1rem;
+    }
+    body.view-android .period-grid {
+      grid-template-columns: 1fr;
+    }
+    body.view-android .chart-box {
+      height: 250px;
+    }
+    body.view-android .nav-tabs {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
+      margin: 0;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      z-index: 60;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    body.view-android .tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 0.74rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    body.view-android {
+      padding-bottom: 85px;
+    }
+    body.view-android #toast {
+      bottom: 78px;
+      right: 12px;
+      left: 12px;
+      text-align: center;
+    }
+
+    /* Wymuszony tryb Komputer (Desktop) */
+    body.view-desktop .container,
+    body.view-desktop .nav-tabs,
+    body.view-desktop .header-inner {
+      max-width: 1240px;
+    }
+    body.view-desktop .kpi-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    body.view-desktop .two-col {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+    body.view-desktop .two-col-equal {
+      grid-template-columns: 1fr 1fr;
+    }
+    body.view-desktop .quick-bags {
+      grid-template-columns: repeat(5, 1fr);
+    }
   </style>
 </head>
 <body>
@@ -471,6 +593,10 @@
       </div>
     </div>
     <div class="header-status">
+      <div class="mode-switcher" title="Przełącz układ interfejsu">
+        <button type="button" class="mode-btn" id="btnModeDesktop" onclick="setViewMode('desktop')">💻 Komputer</button>
+        <button type="button" class="mode-btn" id="btnModeAndroid" onclick="setViewMode('android')">📱 Android</button>
+      </div>
       <div class="pill" id="liveClock">🕒 Ładowanie czasu...</div>
       <div class="pill" id="liveWeather">🌡️ Pobieranie pogody...</div>
     </div>
@@ -823,6 +949,15 @@
                 <input type="number" id="setLat" step="0.0001" placeholder="52.9906" />
                 <input type="number" id="setLon" step="0.0001" placeholder="22.8853" />
               </div>
+            </div>
+          </div>
+            <div class="form-group">
+              <label for="setViewModeSelect">Tryb wyświetlania aplikacji</label>
+              <select id="setViewModeSelect" onchange="setViewMode(this.value)">
+                <option value="auto">🔄 Automatyczny (wykryj urządzenie)</option>
+                <option value="desktop">💻 Wersja na Komputer (szeroki ekran)</option>
+                <option value="android">📱 Wersja na Telefon Android (dolny pasek, duże przyciski)</option>
+              </select>
             </div>
           </div>
           <button type="submit" class="btn" style="margin-top:16px;">💾 Zapisz ustawienia</button>
@@ -2018,7 +2153,44 @@
     });
   });
 
+  // Tryb wyświetlania: Komputer vs Telefon Android
+  const VIEW_MODE_KEY = 'kotlownia_view_mode_v1';
+
+  function detectDefaultViewMode() {
+    const ua = navigator.userAgent || '';
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || window.innerWidth <= 768) {
+      return 'android';
+    }
+    return 'desktop';
+  }
+
+  function applyViewMode(mode) {
+    const resolved = (mode === 'auto' || !mode) ? detectDefaultViewMode() : mode;
+    document.body.classList.remove('view-desktop', 'view-android');
+    document.body.classList.add('view-' + resolved);
+
+    const btnD = document.getElementById('btnModeDesktop');
+    const btnA = document.getElementById('btnModeAndroid');
+    if (btnD) btnD.classList.toggle('active', resolved === 'desktop');
+    if (btnA) btnA.classList.toggle('active', resolved === 'android');
+
+    const sel = document.getElementById('setViewModeSelect');
+    if (sel) sel.value = mode || 'auto';
+  }
+
+  function setViewMode(mode) {
+    localStorage.setItem(VIEW_MODE_KEY, mode);
+    applyViewMode(mode);
+    // Przerysuj wykresy po zmianie szerokości kontenera
+    setTimeout(() => {
+      renderCharts(getCalculatedMetrics());
+    }, 80);
+    const label = mode === 'android' ? 'Telefon Android' : mode === 'desktop' ? 'Komputer' : 'Automatyczny';
+    showToast(`Przełączono widok: ${label}`);
+  }
+
   // Start aplikacji
+  applyViewMode(localStorage.getItem(VIEW_MODE_KEY) || 'auto');
   setDefaultFormDates();
   fetchLiveWeather();
   renderAll();
