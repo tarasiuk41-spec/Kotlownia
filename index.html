@@ -963,31 +963,77 @@
     document.getElementById('delDate').value = now.toISOString().slice(0, 10);
   }
 
-  // Pogoda z Open-Meteo
+  // Pomocnicza funkcja fetch z fallbackiem na zapasowe API pogodowe (wttr.in / Open-Meteo) i korektą przecinków
+  function parseCoord(val, fallback) {
+    const num = Number(String(val ?? '').replace(',', '.'));
+    return isFinite(num) && num !== 0 ? num : fallback;
+  }
+
   async function fetchLiveWeather() {
-    const { lat, lon, city } = state.settings;
+    const lat = parseCoord(state.settings.lat, 52.9906);
+    const lon = parseCoord(state.settings.lon, 22.8853);
+    const city = state.settings.city || 'Łapy';
     const weatherEl = document.getElementById('liveWeather');
+    weatherEl.style.cursor = 'pointer';
+    weatherEl.title = 'Kliknij, aby odświeżyć pogodę';
+    weatherEl.onclick = () => {
+      weatherEl.textContent = `🌡️ ${city}: odświeżanie...`;
+      fetchLiveWeather();
+      syncHistoricalWeatherForCycles(true);
+    };
+
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m`;
-      const res = await fetch(url);
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&current=temperature_2m`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      if (data && data.current && typeof data.current.temperature_2m === 'number') {
-        currentLiveTemp = data.current.temperature_2m;
+      const temp = (data.current && typeof data.current.temperature_2m === 'number')
+        ? data.current.temperature_2m
+        : (data.current_weather && typeof data.current_weather.temperature === 'number' ? data.current_weather.temperature : null);
+
+      if (temp !== null) {
+        currentLiveTemp = temp;
+        state.settings.lastKnownTemp = temp;
+        saveState();
         weatherEl.textContent = `🌡️ ${city}: ${currentLiveTemp.toFixed(1)} °C`;
         const feedTempInput = document.getElementById('feedTemp');
         if (!feedTempInput.value) {
           feedTempInput.value = currentLiveTemp.toFixed(1);
         }
+        return;
       }
-    } catch (e) {
-      weatherEl.textContent = `🌡️ ${city}: brak połączenia`;
+      throw new Error('Brak pola temperatury');
+    } catch (e1) {
+      // Fallback 2: wttr.in JSON (działa nawet gdy sieć komórkowa 5G/IPv6 blokuje Open-Meteo)
+      try {
+        const res2 = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`, { cache: 'no-store' });
+        if (!res2.ok) throw new Error('wttr HTTP ' + res2.status);
+        const data2 = await res2.json();
+        const tempC = Number(data2?.current_condition?.[0]?.temp_C);
+        if (isFinite(tempC)) {
+          currentLiveTemp = tempC;
+          state.settings.lastKnownTemp = tempC;
+          saveState();
+          weatherEl.textContent = `🌡️ ${city}: ${currentLiveTemp.toFixed(1)} °C`;
+          const feedTempInput = document.getElementById('feedTemp');
+          if (!feedTempInput.value) feedTempInput.value = currentLiveTemp.toFixed(1);
+          return;
+        }
+      } catch (e2) {
+        if (typeof state.settings.lastKnownTemp === 'number') {
+          weatherEl.textContent = `🌡️ ${city}: ~${state.settings.lastKnownTemp.toFixed(1)} °C (zapisana)`;
+        } else {
+          weatherEl.textContent = `🌡️ ${city}: kliknij, aby ponowić`;
+        }
+      }
     }
   }
 
   // Pobieranie rzeczywistej średniej dobowej temperatury od najstarszego zasypu do dziś (Open-Meteo)
   async function syncHistoricalWeatherForCycles(manualTrigger = false) {
     if (!state.feeds || state.feeds.length === 0) return;
-    const { lat, lon } = state.settings;
+    const lat = parseCoord(state.settings.lat, 52.9906);
+    const lon = parseCoord(state.settings.lon, 22.8853);
     const sorted = [...state.feeds].sort((a, b) => new Date(a.date) - new Date(b.date));
     const startStr = sorted[0].date.slice(0, 10);
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -995,15 +1041,16 @@
     if (!state.dailyWeather) state.dailyWeather = {};
 
     try {
-      // Open-Meteo forecast API z past_days=92 zwraca zarówno historię do 3 miesięcy wstecz, jak i dzień bieżący
+      // Open-Meteo forecast API z past_days=92 zwraca historię do 3 miesięcy wstecz oraz dzień bieżący
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean,temperature_2m_min,temperature_2m_max&past_days=92&forecast_days=1&timezone=auto`;
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       if (data && data.daily && Array.isArray(data.daily.time)) {
         data.daily.time.forEach((day, idx) => {
           const mean = data.daily.temperature_2m_mean[idx];
-          const tmin = data.daily.temperature_2m_min[idx];
-          const tmax = data.daily.temperature_2m_max[idx];
+          const tmin = data.daily.temperature_2m_min ? data.daily.temperature_2m_min[idx] : null;
+          const tmax = data.daily.temperature_2m_max ? data.daily.temperature_2m_max[idx] : null;
           if (typeof mean === 'number') {
             state.dailyWeather[day] = {
               mean: Number(mean.toFixed(1)),
@@ -1019,19 +1066,21 @@
       if (diffFromStart > 90) {
         const archEnd = new Date(Date.now() - 88 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         const archUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startStr}&end_date=${archEnd}&daily=temperature_2m_mean,temperature_2m_min,temperature_2m_max&timezone=auto`;
-        const archRes = await fetch(archUrl);
-        const archData = await archRes.json();
-        if (archData && archData.daily && Array.isArray(archData.daily.time)) {
-          archData.daily.time.forEach((day, idx) => {
-            const mean = archData.daily.temperature_2m_mean[idx];
-            if (typeof mean === 'number') {
-              state.dailyWeather[day] = {
-                mean: Number(mean.toFixed(1)),
-                min: archData.daily.temperature_2m_min ? archData.daily.temperature_2m_min[idx] : null,
-                max: archData.daily.temperature_2m_max ? archData.daily.temperature_2m_max[idx] : null
-              };
-            }
-          });
+        const archRes = await fetch(archUrl, { cache: 'no-store' });
+        if (archRes.ok) {
+          const archData = await archRes.json();
+          if (archData && archData.daily && Array.isArray(archData.daily.time)) {
+            archData.daily.time.forEach((day, idx) => {
+              const mean = archData.daily.temperature_2m_mean[idx];
+              if (typeof mean === 'number') {
+                state.dailyWeather[day] = {
+                  mean: Number(mean.toFixed(1)),
+                  min: archData.daily.temperature_2m_min ? archData.daily.temperature_2m_min[idx] : null,
+                  max: archData.daily.temperature_2m_max ? archData.daily.temperature_2m_max[idx] : null
+                };
+              }
+            });
+          }
         }
       }
 
@@ -1039,7 +1088,7 @@
       renderAll();
       if (manualTrigger) showToast('Zaktualizowano historię temperatur z Open-Meteo!');
     } catch (e) {
-      if (manualTrigger) showToast('Nie udało się pobrać historii pogody (brak internetu)', true);
+      if (manualTrigger) showToast('Błąd pobierania historii pogody – sprawdź połączenie lub spróbuj ponownie', true);
     }
   }
 
@@ -1603,8 +1652,8 @@
       calorificMJ: Number(document.getElementById('setCalorific').value) || 26,
       efficiencyPct: Number(document.getElementById('setEfficiency').value) || 85,
       city: document.getElementById('setCity').value.trim() || 'Łapy',
-      lat: Number(document.getElementById('setLat').value) || 52.9906,
-      lon: Number(document.getElementById('setLon').value) || 22.8853
+      lat: parseCoord(document.getElementById('setLat').value, 52.9906),
+      lon: parseCoord(document.getElementById('setLon').value, 22.8853)
     };
     saveState();
     fetchLiveWeather();
