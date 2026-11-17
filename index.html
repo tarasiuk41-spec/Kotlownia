@@ -494,6 +494,7 @@
         <div class="kpi-title"><span>Stan magazynu opału</span> <span>📦</span></div>
         <div class="kpi-value" id="kpiStockBags">0 worków</div>
         <div class="kpi-sub" id="kpiStockDetails">0 kg | 0,00 zł</div>
+        <div class="kpi-sub" id="kpiFullStockDetails" style="color:var(--green); font-weight:600; font-size:0.82rem; margin-top:4px;">Załadowano łącznie: 0 kg | 0,00 zł</div>
       </div>
 
       <div class="card">
@@ -1291,6 +1292,10 @@
     // KPI
     document.getElementById('kpiStockBags').textContent = `${Number(m.stockBags.toFixed(1))} worków`;
     document.getElementById('kpiStockDetails').textContent = `${m.stockKg.toFixed(0)} kg | ${formatPln(m.stockPln)}`;
+    const kpiFullEl = document.getElementById('kpiFullStockDetails');
+    if (kpiFullEl) {
+      kpiFullEl.textContent = `Cały załadowany magazyn: ${m.totalDeliveredKg.toFixed(0)} kg | ${formatPln(m.totalDeliveredPln)}`;
+    }
 
     document.getElementById('kpiAvgBurn').textContent = `${m.avgDailyKg.toFixed(2)} kg/dobę`;
     document.getElementById('kpiAvgCost').textContent = `${formatPln(m.avgDailyPln)}/dobę | ${m.costPerKwh.toFixed(2)} zł/kWh`;
