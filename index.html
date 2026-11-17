@@ -40,6 +40,98 @@
       --radius: 14px;
     }
 
+    /* Motyw 2: Eco Green */
+    body.theme-ecogreen {
+      --bg-main: #064e3b;
+      --bg-card: #065f46;
+      --bg-card-hover: #047857;
+      --bg-input: #022c22;
+      --border: #047857;
+      --text-main: #ecfdf5;
+      --text-muted: #a7f3d0;
+      --accent: #34d399;
+      --accent-hover: #10b981;
+      --accent-soft: rgba(52, 211, 153, 0.18);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.18);
+      --blue: #2dd4bf;
+      --blue-soft: rgba(45, 212, 191, 0.18);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.18);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.18);
+      --amber: #fbbf24;
+    }
+
+    /* Motyw 3: Modern Cyber-Steel */
+    body.theme-cyber {
+      --bg-main: #090d16;
+      --bg-card: #111827;
+      --bg-card-hover: #1f2937;
+      --bg-input: #030712;
+      --border: #374151;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #ec4899;
+      --accent-hover: #db2777;
+      --accent-soft: rgba(236, 72, 153, 0.18);
+      --green: #38bdf8;
+      --green-soft: rgba(56, 189, 248, 0.18);
+      --blue: #818cf8;
+      --blue-soft: rgba(129, 140, 248, 0.18);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.18);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.18);
+      --amber: #f43f5e;
+    }
+
+    /* Motyw 4: Jasny Warsztatowy */
+    body.theme-light {
+      --bg-main: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-input: #e2e8f0;
+      --border: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --accent-soft: rgba(249, 115, 22, 0.12);
+      --green: #059669;
+      --green-soft: rgba(5, 150, 105, 0.12);
+      --blue: #0284c7;
+      --blue-soft: rgba(2, 132, 199, 0.12);
+      --purple: #7c3aed;
+      --purple-soft: rgba(124, 58, 237, 0.12);
+      --red: #dc2626;
+      --red-soft: rgba(220, 38, 38, 0.12);
+      --amber: #d97706;
+    }
+
+    /* Motyw 5: Ciepły Bursztyn */
+    body.theme-amber {
+      --bg-main: #1c140d;
+      --bg-card: #2c1e13;
+      --bg-card-hover: #3d291a;
+      --bg-input: #120b07;
+      --border: #4d331f;
+      --text-main: #fef3c7;
+      --text-muted: #d97706;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --accent-soft: rgba(245, 158, 11, 0.18);
+      --green: #10b981;
+      --green-soft: rgba(16, 185, 129, 0.18);
+      --blue: #38bdf8;
+      --blue-soft: rgba(56, 189, 248, 0.18);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.18);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.18);
+      --amber: #fbbf24;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -1329,6 +1421,16 @@
                 <option value="android">📱 Wersja na Telefon Android (dolny pasek)</option>
               </select>
             </div>
+            <div class="form-group">
+              <label for="setAppThemeSelect">Styl wyglądu (Kolorystyka)</label>
+              <select id="setAppThemeSelect" onchange="setAppTheme(this.value)">
+                <option value="classic">🔥 Klasyczny Przemysłowy (Dark Orange)</option>
+                <option value="ecogreen">🌿 Eco Green (Leśno-Ekologiczny)</option>
+                <option value="cyber">⚡ Modern Cyber-Steel (Nowoczesny Stalowy)</option>
+                <option value="light">☀️ Jasny Warsztatowy (Light Clean)</option>
+                <option value="amber">🍯 Ciepły Bursztyn (Warm Amber)</option>
+              </select>
+            </div>
           </div>
           <button type="submit" class="btn" style="margin-top:16px;">💾 Zapisz ustawienia</button>
         </form>
@@ -1408,6 +1510,23 @@
 <script>
   const STORAGE_KEY = 'kotlownia_app_v4';
   const VIEW_MODE_KEY = 'kotlownia_view_mode_v1';
+  const THEME_KEY = 'kotlownia_app_theme_v1';
+
+  function applyAppTheme(theme) {
+    const t = theme || 'classic';
+    document.body.classList.remove('theme-classic', 'theme-ecogreen', 'theme-cyber', 'theme-light', 'theme-amber');
+    if (t !== 'classic') {
+      document.body.classList.add('theme-' + t);
+    }
+    const sel = document.getElementById('setAppThemeSelect');
+    if (sel) sel.value = t;
+  }
+
+  function setAppTheme(theme) {
+    localStorage.setItem(THEME_KEY, theme);
+    applyAppTheme(theme);
+    showToast(`Zmieniono styl wyglądu!`);
+  }
 
   function buildInitialDemoState() {
     const now = new Date();
@@ -2307,6 +2426,9 @@
 
     // Ustawienia
     document.getElementById('setBagWeight').value = state.settings.bagWeight;
+    const currentTheme = localStorage.getItem(THEME_KEY) || 'classic';
+    const themeSel = document.getElementById('setAppThemeSelect');
+    if (themeSel) themeSel.value = currentTheme;
     document.getElementById('setPriceTon').value = state.settings.pricePerTon;
     document.getElementById('setCalorific').value = state.settings.calorificMJ;
     document.getElementById('setEfficiency').value = state.settings.efficiencyPct;
@@ -2500,6 +2622,8 @@
       lat: parseCoord(document.getElementById('setLat').value, 52.9906),
       lon: parseCoord(document.getElementById('setLon').value, 22.8853)
     };
+    setAppTheme(document.getElementById('setAppThemeSelect').value);
+    setViewMode(document.getElementById('setViewModeSelect').value);
     saveState();
     fetchLiveWeather();
     syncHistoricalWeatherForCycles(true);
@@ -2956,6 +3080,7 @@
 
   // Start aplikacji
   applyViewMode(localStorage.getItem(VIEW_MODE_KEY) || 'auto');
+  applyAppTheme(localStorage.getItem(THEME_KEY) || 'classic');
   setDefaultFormDates();
   fetchLiveWeather();
   renderAll();
