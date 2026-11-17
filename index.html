@@ -513,6 +513,7 @@
         <div class="kpi-title"><span>Bieżący zasyp (trwający cykl)</span> <span>⏳</span></div>
         <div class="kpi-value highlight-blue" id="kpiCurrentCycle">—</div>
         <div class="kpi-sub" id="kpiCurrentCycleSub">Brak aktywnego zasypu</div>
+        <div class="kpi-sub" id="kpiCurrentWeatherSub" style="color:var(--blue); font-weight:600; font-size:0.82rem; margin-top:4px;">🌦️ Śr. temp. od zasypu: pobieranie...</div>
       </div>
     </div>
 
@@ -631,9 +632,12 @@
   <!-- TAB 2: WYKRESY I ANALIZA -->
   <section id="tab-charts" class="tab-panel">
     <div class="card" style="margin-bottom:18px;">
-      <h2>🌡️ Korelacja spalania dobowego (kg/dobę) ze średnią temperaturą cyklu (°C)</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+        <h2 style="margin-bottom:0;">🌡️ Śledzenie pogody od zasypu: spalanie dobowe (kg/d) vs realna śr. temperatura okresu (°C)</h2>
+        <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem;" onclick="syncHistoricalWeatherForCycles(true)">🌦️ Pobierz pełną pogodę z API dla okresów</button>
+      </div>
       <p style="font-size:0.84rem; color:var(--text-muted);">
-        Słupki pokazują średnie zużycie dobowe w danym cyklu między zasypami, a linia średnią temperaturę z początku i końca okresu.
+        Aplikacja automatycznie pobiera z archiwum i prognozy Open-Meteo <strong>rzeczywistą średnią temperaturę dobową</strong> dla każdego dnia od momentu zasypu do kolejnego załadunku (oraz dla trwającego cyklu od dnia zasypu do dziś), zestawiając ją ze średnim dziennym spalaniem.
       </p>
       <div class="chart-box">
         <canvas id="chartCorrelation"></canvas>
@@ -892,7 +896,8 @@
           notes: 'Dobry spiek, stabilna praca',
           active: true
         }
-      ]
+      ],
+      dailyWeather: {}
     };
   }
 
@@ -914,7 +919,8 @@
         settings: { ...base.settings, ...(parsed.settings || {}) },
         deliveries: parsed.deliveries || [],
         feeds: parsed.feeds || [],
-        presets: parsed.presets || base.presets
+        presets: parsed.presets || base.presets,
+        dailyWeather: parsed.dailyWeather || {}
       };
     } catch (e) {
       return buildInitialDemoState();
@@ -978,6 +984,92 @@
     }
   }
 
+  // Pobieranie rzeczywistej średniej dobowej temperatury od najstarszego zasypu do dziś (Open-Meteo)
+  async function syncHistoricalWeatherForCycles(manualTrigger = false) {
+    if (!state.feeds || state.feeds.length === 0) return;
+    const { lat, lon } = state.settings;
+    const sorted = [...state.feeds].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const startStr = sorted[0].date.slice(0, 10);
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    if (!state.dailyWeather) state.dailyWeather = {};
+
+    try {
+      // Open-Meteo forecast API z past_days=92 zwraca zarówno historię do 3 miesięcy wstecz, jak i dzień bieżący
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean,temperature_2m_min,temperature_2m_max&past_days=92&forecast_days=1&timezone=auto`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.daily && Array.isArray(data.daily.time)) {
+        data.daily.time.forEach((day, idx) => {
+          const mean = data.daily.temperature_2m_mean[idx];
+          const tmin = data.daily.temperature_2m_min[idx];
+          const tmax = data.daily.temperature_2m_max[idx];
+          if (typeof mean === 'number') {
+            state.dailyWeather[day] = {
+              mean: Number(mean.toFixed(1)),
+              min: typeof tmin === 'number' ? Number(tmin.toFixed(1)) : null,
+              max: typeof tmax === 'number' ? Number(tmax.toFixed(1)) : null
+            };
+          }
+        });
+      }
+
+      // Jeśli najstarszy zasyp jest starszy niż 90 dni, dociągnij z archive-api
+      const diffFromStart = (new Date(todayStr) - new Date(startStr)) / (1000 * 60 * 60 * 24);
+      if (diffFromStart > 90) {
+        const archEnd = new Date(Date.now() - 88 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const archUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startStr}&end_date=${archEnd}&daily=temperature_2m_mean,temperature_2m_min,temperature_2m_max&timezone=auto`;
+        const archRes = await fetch(archUrl);
+        const archData = await archRes.json();
+        if (archData && archData.daily && Array.isArray(archData.daily.time)) {
+          archData.daily.time.forEach((day, idx) => {
+            const mean = archData.daily.temperature_2m_mean[idx];
+            if (typeof mean === 'number') {
+              state.dailyWeather[day] = {
+                mean: Number(mean.toFixed(1)),
+                min: archData.daily.temperature_2m_min ? archData.daily.temperature_2m_min[idx] : null,
+                max: archData.daily.temperature_2m_max ? archData.daily.temperature_2m_max[idx] : null
+              };
+            }
+          });
+        }
+      }
+
+      saveState();
+      renderAll();
+      if (manualTrigger) showToast('Zaktualizowano historię temperatur z Open-Meteo!');
+    } catch (e) {
+      if (manualTrigger) showToast('Nie udało się pobrać historii pogody (brak internetu)', true);
+    }
+  }
+
+  function getPeriodWeatherStats(startIso, endIso) {
+    const dw = state.dailyWeather || {};
+    const startDay = new Date(startIso.slice(0, 10));
+    const endDay = new Date((endIso || new Date().toISOString()).slice(0, 10));
+    const vals = [];
+    let minVal = Infinity;
+    let maxVal = -Infinity;
+
+    for (let d = new Date(startDay); d <= endDay; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      if (dw[key] && typeof dw[key].mean === 'number') {
+        vals.push(dw[key].mean);
+        if (dw[key].min !== null && dw[key].min < minVal) minVal = dw[key].min;
+        if (dw[key].max !== null && dw[key].max > maxVal) maxVal = dw[key].max;
+      }
+    }
+
+    if (vals.length === 0) return null;
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    return {
+      avg: Number(avg.toFixed(1)),
+      min: isFinite(minVal) ? Number(minVal.toFixed(1)) : null,
+      max: isFinite(maxVal) ? Number(maxVal.toFixed(1)) : null,
+      daysCount: vals.length
+    };
+  }
+
   async function geocodeCity() {
     const city = document.getElementById('setCity').value.trim();
     if (!city) return;
@@ -1022,10 +1114,12 @@
         const dailyKg = weightKg / diffDays;
         const dailyPln = dailyKg * pricePerKg;
 
-        const temps = [curr.temp, next.temp]
+        const trackedW = getPeriodWeatherStats(curr.date, next.date);
+        const fallbackTemps = [curr.temp, next.temp]
           .filter(v => v !== null && v !== undefined && v !== '' && !isNaN(Number(v)))
           .map(Number);
-        const avgTemp = temps.length > 0 ? temps.reduce((a, b) => a + b, 0) / temps.length : null;
+        const fallbackAvg = fallbackTemps.length > 0 ? fallbackTemps.reduce((a, b) => a + b, 0) / fallbackTemps.length : null;
+        const avgTemp = trackedW ? trackedW.avg : fallbackAvg;
 
         cycles.push({
           ...curr,
@@ -1036,12 +1130,15 @@
           durationDays: diffDays,
           dailyKg,
           dailyPln,
-          avgTemp
+          avgTemp,
+          weatherStats: trackedW
         });
       } else {
         const nowMs = Date.now();
         const t1 = new Date(curr.date).getTime();
         const elapsedDays = Math.max((nowMs - t1) / (1000 * 60 * 60 * 24), 0);
+        const trackedW = getPeriodWeatherStats(curr.date, new Date().toISOString());
+        const fallbackTemp = curr.temp !== null && curr.temp !== '' ? Number(curr.temp) : null;
         cycles.push({
           ...curr,
           weightKg,
@@ -1051,7 +1148,8 @@
           durationDays: elapsedDays,
           dailyKg: null,
           dailyPln: null,
-          avgTemp: curr.temp !== null && curr.temp !== '' ? Number(curr.temp) : null
+          avgTemp: trackedW ? trackedW.avg : fallbackTemp,
+          weatherStats: trackedW
         });
       }
     }
@@ -1186,10 +1284,20 @@
         corrItems.push('Zapisuj temperaturę zewnętrzną przy kolejnych zasypach – przy minimum 2 okresach z temperaturą AI wyliczy koszt każdego stopnia mrozu.');
       }
 
+      if (m.ongoingCycle && m.ongoingCycle.avgTemp !== null && m.avgDailyKg > 0) {
+        const diffOngoingTemp = m.ongoingCycle.avgTemp - (latest.avgTemp ?? m.ongoingCycle.avgTemp);
+        const tempMsg = diffOngoingTemp < -1.5
+          ? `jest chłodniej o ${Math.abs(diffOngoingTemp).toFixed(1)} °C niż w poprzednim cyklu – spodziewaj się nieco wyższego spalania dobowego.`
+          : diffOngoingTemp > 1.5
+          ? `jest cieplej o +${diffOngoingTemp.toFixed(1)} °C niż w poprzednim cyklu – zasyp powinien wystarczyć na dłużej.`
+          : `temperatura utrzymuje się na podobnym poziomie jak w poprzednim okresie.`;
+        corrItems.push(`Trwający cykl (od ${formatDateTime(m.ongoingCycle.date)}): średnia temperatura od momentu zasypu wynosi ${m.ongoingCycle.avgTemp.toFixed(1)} °C (${tempMsg})`);
+      }
+
       if (latest.dailyKg > 18 && latest.avgTemp !== null && latest.avgTemp > 5) {
         corrItems.push('Wskazówka optymalizacyjna: podwyższone spalanie mimo dodatniej temperatury zewnętrznej – warto skontrolować czystość wymiennika ciepła lub obniżyć moc nadmuchu.');
       } else {
-        corrItems.push(`Przy obecnym tempie spalania koszt wytworzenia 1 kWh energii cieplnej wynosi ${m.costPerKwh.toFixed(2)} zł (przy sprawności kotła ${state.settings.efficiencyPct}%).`);
+        corrItems.push(`Średnia dzienna ilość spalania w zamkniętych cyklach to ${m.avgDailyKg.toFixed(2)} kg/dobę (${(m.avgDailyKg / m.bw).toFixed(2)} worka/dobę), co daje koszt ${m.costPerKwh.toFixed(2)} zł/kWh ciepła.`);
       }
     }
     corrEl.innerHTML = corrItems.map(txt => `<li>${txt}</li>`).join('');
@@ -1310,12 +1418,24 @@
       document.getElementById('kpiForecastDate').textContent = 'Dodaj min. 2 zasypy, aby wyliczyć';
     }
 
+    const curWeatherEl = document.getElementById('kpiCurrentWeatherSub');
     if (m.ongoingCycle) {
       document.getElementById('kpiCurrentCycle').textContent = `${m.ongoingCycle.weightKg.toFixed(0)} kg (${m.ongoingCycle.bags} w.)`;
       document.getElementById('kpiCurrentCycleSub').textContent = `Trwa od ${m.ongoingCycle.durationDays.toFixed(1)} dni (${formatDateTime(m.ongoingCycle.date)})`;
+      if (curWeatherEl) {
+        if (m.ongoingCycle.weatherStats) {
+          const ws = m.ongoingCycle.weatherStats;
+          curWeatherEl.textContent = `🌦️ Śr. temp. od zasypu: ${ws.avg.toFixed(1)} °C (min ${ws.min ?? '—'}° / max ${ws.max ?? '—'}°)`;
+        } else if (m.ongoingCycle.avgTemp !== null) {
+          curWeatherEl.textContent = `🌡️ Temp. w dniu zasypu: ${m.ongoingCycle.avgTemp.toFixed(1)} °C`;
+        } else {
+          curWeatherEl.textContent = `🌦️ Śr. temp. od zasypu: oczekiwanie na dane`;
+        }
+      }
     } else {
       document.getElementById('kpiCurrentCycle').textContent = '—';
       document.getElementById('kpiCurrentCycleSub').textContent = 'Brak aktywnego zasypu';
+      if (curWeatherEl) curWeatherEl.textContent = '🌦️ Śr. temp. od zasypu: —';
     }
 
     document.getElementById('statWeekKg').textContent = `${m.weekKg.toFixed(1)} kg`;
@@ -1335,7 +1455,7 @@
           ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
           : `<span class="badge badge-done">${c.durationDays.toFixed(1)} dni</span>`}</td>
         <td>${c.status === 'ongoing' ? '<em>trwa...</em>' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
-        <td>${c.temp !== null && c.temp !== '' ? c.temp + ' °C' : '—'}</td>
+        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' <span title="Średnia z API Open-Meteo dla całego okresu">🌦️</span>' : ''}` : '—'}</td>
         <td>${c.note || '—'}</td>
       </tr>
     `).join('') || '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Brak zarejestrowanych zasypów.</td></tr>';
@@ -1351,7 +1471,7 @@
           ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
           : `${c.durationDays.toFixed(2)} dni`}</td>
         <td>${c.status === 'ongoing' ? '—' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
-        <td>${c.temp !== null && c.temp !== '' ? c.temp + ' °C' : '—'}</td>
+        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' <span title="Średnia z API Open-Meteo dla całego okresu">🌦️</span>' : ''}` : '—'}</td>
         <td>${c.note || '—'}</td>
         <td><button class="btn btn-danger" onclick="deleteFeed(${c.id})">Usuń</button></td>
       </tr>
@@ -1430,6 +1550,7 @@
     });
     saveState();
     renderAll();
+    syncHistoricalWeatherForCycles(false);
     document.getElementById('feedNote').value = '';
     setDefaultFormDates();
     showToast(`Zapisano zasyp: ${bags} worków!`);
@@ -1487,6 +1608,7 @@
     };
     saveState();
     fetchLiveWeather();
+    syncHistoricalWeatherForCycles(true);
     renderAll();
     showToast('Ustawienia zaktualizowane!');
   });
@@ -1523,13 +1645,18 @@
     const commonGrid = { color: 'rgba(148, 163, 184, 0.12)' };
     const commonTicks = { color: '#94a3b8' };
 
-    const corrLabels = m.closedCycles.map(c => {
+    const corrCycles = [...m.closedCycles];
+    if (m.ongoingCycle) corrCycles.push(m.ongoingCycle);
+
+    const corrLabels = corrCycles.map(c => {
       const d1 = new Date(c.date).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+      if (c.status === 'ongoing') return `${d1}–dziś (trwa)`;
       const d2 = new Date(c.endDate).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
       return `${d1}–${d2}`;
     });
-    const corrKg = m.closedCycles.map(c => Number(c.dailyKg.toFixed(2)));
-    const corrTemp = m.closedCycles.map(c => c.avgTemp !== null ? Number(c.avgTemp.toFixed(1)) : null);
+    const corrKg = corrCycles.map(c => c.status === 'closed' ? Number(c.dailyKg.toFixed(2)) : null);
+    const corrAvgLine = corrCycles.map(() => m.avgDailyKg > 0 ? Number(m.avgDailyKg.toFixed(2)) : null);
+    const corrTemp = corrCycles.map(c => c.avgTemp !== null ? Number(c.avgTemp.toFixed(1)) : null);
 
     if (charts.corr) charts.corr.destroy();
     charts.corr = new Chart(document.getElementById('chartCorrelation'), {
@@ -1538,9 +1665,9 @@
         datasets: [
           {
             type: 'bar',
-            label: 'Spalanie dobowe (kg/dobę)',
+            label: 'Śr. dzienne spalanie w okresie (kg/dobę)',
             data: corrKg,
-            backgroundColor: 'rgba(249, 115, 22, 0.75)',
+            backgroundColor: 'rgba(249, 115, 22, 0.78)',
             borderColor: '#f97316',
             borderWidth: 1,
             borderRadius: 6,
@@ -1548,10 +1675,22 @@
           },
           {
             type: 'line',
-            label: 'Śr. temp. okresu (°C)',
+            label: `Średnia sezonowa (${m.avgDailyKg.toFixed(2)} kg/d)`,
+            data: corrAvgLine,
+            borderColor: '#10b981',
+            borderDash: [6, 6],
+            borderWidth: 2,
+            pointRadius: 0,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: 'Śr. temp. od zasypu (°C)',
             data: corrTemp,
             borderColor: '#38bdf8',
             backgroundColor: '#38bdf8',
+            borderWidth: 2.5,
+            pointRadius: 4,
             tension: 0.3,
             spanGaps: true,
             yAxisID: 'y1'
@@ -1602,29 +1741,51 @@
 
     const last30Labels = [];
     const last30Vals = [];
+    const last30Temps = [];
+    const dw = state.dailyWeather || {};
     for (let i = 29; i >= 0; i--) {
       const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
       const key = d.toISOString().slice(0, 10);
       last30Labels.push(d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }));
       last30Vals.push(Number((m.dailyMap[key] || 0).toFixed(2)));
+      last30Temps.push(dw[key] && typeof dw[key].mean === 'number' ? dw[key].mean : null);
     }
 
     if (charts.daily30) charts.daily30.destroy();
     charts.daily30 = new Chart(document.getElementById('chartDaily30'), {
-      type: 'bar',
       data: {
         labels: last30Labels,
-        datasets: [{
-          label: 'Spalanie dzienne (kg)',
-          data: last30Vals,
-          backgroundColor: 'rgba(249, 115, 22, 0.75)',
-          borderRadius: 4
-        }]
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Spalanie dzienne (kg)',
+            data: last30Vals,
+            backgroundColor: 'rgba(249, 115, 22, 0.75)',
+            borderRadius: 4,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: 'Śr. temp. dobowa (°C)',
+            data: last30Temps,
+            borderColor: '#38bdf8',
+            backgroundColor: '#38bdf8',
+            borderWidth: 2,
+            pointRadius: 2,
+            tension: 0.3,
+            spanGaps: true,
+            yAxisID: 'y1'
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: { x: { ticks: commonTicks, grid: commonGrid }, y: { ticks: commonTicks, grid: commonGrid } },
+        scales: {
+          x: { ticks: commonTicks, grid: commonGrid },
+          y: { position: 'left', ticks: commonTicks, grid: commonGrid },
+          y1: { position: 'right', ticks: commonTicks, grid: { drawOnChartArea: false } }
+        },
         plugins: { legend: { labels: { color: '#f8fafc' } } }
       }
     });
@@ -1768,6 +1929,7 @@
   setDefaultFormDates();
   fetchLiveWeather();
   renderAll();
+  syncHistoricalWeatherForCycles(false);
 </script>
 </body>
 </html>
