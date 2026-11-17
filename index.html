@@ -32,6 +32,8 @@
       --green-soft: rgba(16, 185, 129, 0.15);
       --blue: #38bdf8;
       --blue-soft: rgba(56, 189, 248, 0.15);
+      --purple: #a855f7;
+      --purple-soft: rgba(168, 85, 247, 0.14);
       --red: #ef4444;
       --red-soft: rgba(239, 68, 68, 0.15);
       --amber: #f59e0b;
@@ -191,8 +193,14 @@
       gap: 18px;
       margin-bottom: 20px;
     }
+    .two-col-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
     @media (max-width: 860px) {
-      .two-col { grid-template-columns: 1fr; }
+      .two-col, .two-col-equal { grid-template-columns: 1fr; }
     }
     .card h2 {
       font-size: 1.1rem;
@@ -279,6 +287,17 @@
     .btn:hover { background: var(--accent-hover); }
     .btn-green { background: var(--green); }
     .btn-green:hover { background: #059669; }
+    .btn-purple {
+      background: var(--purple-soft);
+      border: 1px solid var(--purple);
+      color: #e9d5ff;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+    }
+    .btn-purple:hover {
+      background: var(--purple);
+      color: #fff;
+    }
     .btn-outline {
       background: transparent;
       border: 1px solid var(--border);
@@ -368,12 +387,54 @@
       border: 1px solid var(--green);
     }
 
-    /* Charts */
+    /* Charts & AI Analysis Box */
     .chart-box {
       position: relative;
-      height: 310px;
+      height: 300px;
       width: 100%;
       margin-top: 10px;
+    }
+    .ai-box {
+      margin-top: 16px;
+      background: linear-gradient(145deg, rgba(168, 85, 247, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .ai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .ai-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #e9d5ff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+    }
+    .ai-list li {
+      padding-left: 16px;
+      position: relative;
+    }
+    .ai-list li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--purple);
+      font-size: 0.8rem;
     }
 
     /* Toast notification */
@@ -569,19 +630,44 @@
       <div class="chart-box">
         <canvas id="chartCorrelation"></canvas>
       </div>
+      <!-- Analiza AI pod wykresem 1 -->
+      <div class="ai-box">
+        <div class="ai-header">
+          <div class="ai-title">✨ Analiza AI – Korelacja spalania i charakterystyka cieplna budynku</div>
+          <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis('corr')">🔄 Odśwież analizę AI</button>
+        </div>
+        <ul class="ai-list" id="aiCorrInsights"></ul>
+      </div>
     </div>
 
-    <div class="two-col">
+    <div class="two-col-equal">
       <div class="card">
         <h2>📅 Zużycie miesięczne (kg i PLN)</h2>
         <div class="chart-box">
           <canvas id="chartMonthly"></canvas>
         </div>
+        <!-- Analiza AI pod wykresem 2 -->
+        <div class="ai-box">
+          <div class="ai-header">
+            <div class="ai-title">✨ Analiza AI – Sezonowość i koszty miesięczne</div>
+            <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis('monthly')">🔄 Odśwież analizę AI</button>
+          </div>
+          <ul class="ai-list" id="aiMonthlyInsights"></ul>
+        </div>
       </div>
+
       <div class="card">
         <h2>📆 Dzienne zużycie w ostatnich 30 dniach (kg)</h2>
         <div class="chart-box">
           <canvas id="chartDaily30"></canvas>
+        </div>
+        <!-- Analiza AI pod wykresem 3 -->
+        <div class="ai-box">
+          <div class="ai-header">
+            <div class="ai-title">✨ Analiza AI – Trend 30-dniowy i stabilność kotła</div>
+            <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis('daily30')">🔄 Odśwież analizę AI</button>
+          </div>
+          <ul class="ai-list" id="aiDaily30Insights"></ul>
         </div>
       </div>
     </div>
@@ -756,33 +842,51 @@
 <div id="toast">Zapisano!</div>
 
 <script>
-  const STORAGE_KEY = 'kotlownia_app_v2';
+  const STORAGE_KEY = 'kotlownia_app_v3';
 
-  const defaultState = {
-    settings: {
-      bagWeight: 25,
-      pricePerTon: 1500,
-      calorificMJ: 26,
-      efficiencyPct: 85,
-      city: 'Łapy',
-      lat: 52.9906,
-      lon: 22.8853
-    },
-    deliveries: [],
-    feeds: [],
-    presets: [
-      {
-        id: 1,
-        name: 'Ekogroszek 26 MJ (Standard)',
-        feedTime: 5,
-        pauseTime: 35,
-        fan: 32,
-        temp: 58,
-        notes: 'Dobry spiek, stabilna praca',
-        active: true
-      }
-    ]
-  };
+  function buildInitialDemoState() {
+    const now = new Date();
+    const fmt = d => {
+      const c = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return c.toISOString().slice(0, 16);
+    };
+    const d65 = new Date(now.getTime() - 65 * 24 * 60 * 60 * 1000);
+    const d47 = new Date(now.getTime() - 47 * 24 * 60 * 60 * 1000);
+    const d29 = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+
+    return {
+      settings: {
+        bagWeight: 25,
+        pricePerTon: 1500,
+        calorificMJ: 26,
+        efficiencyPct: 85,
+        city: 'Łapy',
+        lat: 52.9906,
+        lon: 22.8853
+      },
+      deliveries: [
+        { id: 101, date: d65.toISOString().slice(0, 10), bags: 120, note: 'Dostawa sezonowa 3 tony' }
+      ],
+      feeds: [
+        { id: 201, date: fmt(d65), bags: 6, temp: 12.0, note: 'Rozruch jesienny (150 kg / 18 dni)' },
+        { id: 202, date: fmt(d47), bags: 8, temp: 8.5, note: 'Zasyp październikowy (200 kg / 18 dni)' },
+        { id: 203, date: fmt(d29), bags: 14, temp: 5.5, note: 'Zasyp 350 kg (14 worków / 29 dni)' },
+        { id: 204, date: fmt(now), bags: 6, temp: 1.5, note: 'Nowy zasyp – okres w toku' }
+      ],
+      presets: [
+        {
+          id: 1,
+          name: 'Ekogroszek 26 MJ (Standard)',
+          feedTime: 5,
+          pauseTime: 35,
+          fan: 32,
+          temp: 58,
+          notes: 'Dobry spiek, stabilna praca',
+          active: true
+        }
+      ]
+    };
+  }
 
   let state = loadState();
   let currentLiveTemp = null;
@@ -791,16 +895,21 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return JSON.parse(JSON.stringify(defaultState));
+      if (!raw) {
+        const initial = buildInitialDemoState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+        return initial;
+      }
       const parsed = JSON.parse(raw);
+      const base = buildInitialDemoState();
       return {
-        settings: { ...defaultState.settings, ...(parsed.settings || {}) },
+        settings: { ...base.settings, ...(parsed.settings || {}) },
         deliveries: parsed.deliveries || [],
         feeds: parsed.feeds || [],
-        presets: parsed.presets || defaultState.presets
+        presets: parsed.presets || base.presets
       };
     } catch (e) {
-      return JSON.parse(JSON.stringify(defaultState));
+      return buildInitialDemoState();
     }
   }
 
@@ -833,7 +942,6 @@
   setInterval(updateClock, 1000);
   updateClock();
 
-  // Ustawienie domyślnej daty w formularzach
   function setDefaultFormDates() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -890,7 +998,6 @@
     const calorific = Number(state.settings.calorificMJ) || 26;
     const eff = (Number(state.settings.efficiencyPct) || 85) / 100;
 
-    // Sortuj zasypy chronologicznie rosnąco
     const sortedFeeds = [...state.feeds].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     const cycles = [];
@@ -907,8 +1014,9 @@
         const dailyKg = weightKg / diffDays;
         const dailyPln = dailyKg * pricePerKg;
 
-        // Średnia temperatura z początku i końca okresu
-        const temps = [curr.temp, next.temp].filter(v => v !== null && v !== undefined && v !== '' && !isNaN(Number(v))).map(Number);
+        const temps = [curr.temp, next.temp]
+          .filter(v => v !== null && v !== undefined && v !== '' && !isNaN(Number(v)))
+          .map(Number);
         const avgTemp = temps.length > 0 ? temps.reduce((a, b) => a + b, 0) / temps.length : null;
 
         cycles.push({
@@ -940,14 +1048,12 @@
       }
     }
 
-    // Stan magazynu
     const totalDeliveredBags = state.deliveries.reduce((sum, d) => sum + Number(d.bags), 0);
     const totalFedBags = sortedFeeds.reduce((sum, f) => sum + Number(f.bags), 0);
     const stockBags = Math.max(0, totalDeliveredBags - totalFedBags);
     const stockKg = stockBags * bw;
     const stockPln = stockKg * pricePerKg;
 
-    // Średnie spalanie z zamkniętych cykli (ostatnie 5 zamkniętych cykli dla trafnej prognozy)
     const closedCycles = cycles.filter(c => c.status === 'closed');
     const recentClosed = closedCycles.slice(-5);
     const totalRecentKg = recentClosed.reduce((s, c) => s + c.weightKg, 0);
@@ -955,11 +1061,9 @@
     const avgDailyKg = totalRecentDays > 0 ? totalRecentKg / totalRecentDays : 0;
     const avgDailyPln = avgDailyKg * pricePerKg;
 
-    // Koszt 1 kWh użytecznego ciepła: 1 kg daje (calorific * eff) MJ -> / 3.6 = kWh
     const kwhPerKg = (calorific * eff) / 3.6;
     const costPerKwh = kwhPerKg > 0 ? pricePerKg / kwhPerKg : 0;
 
-    // Prognoza na ile dni wystarczy (uwzględniając też zapas znajdujący się aktualnie w podajniku z ongoing cycle)
     const ongoingCycle = cycles.find(c => c.status === 'ongoing') || null;
     let remainingInHopperKg = 0;
     if (ongoingCycle && avgDailyKg > 0) {
@@ -968,7 +1072,6 @@
     const totalAvailableKg = stockKg + remainingInHopperKg;
     const forecastDays = avgDailyKg > 0 ? totalAvailableKg / avgDailyKg : null;
 
-    // Rozkład dzienny spalania z zamkniętych cykli na potrzeby statystyk tydzień/miesiąc/rok i wykresów
     const dailyMap = {};
     closedCycles.forEach(c => {
       const start = new Date(c.date);
@@ -1032,10 +1135,133 @@
     });
   }
 
+  // Silnik Analizy AI pod wykresami
+  function generateAIInsights(m) {
+    // 1. Korelacja spalania z temperaturą
+    const corrEl = document.getElementById('aiCorrInsights');
+    const corrItems = [];
+    if (m.closedCycles.length === 0) {
+      corrItems.push('Brak zamkniętych cykli między zasypami – dodaj kolejny zasyp, aby AI wyliczyło wrażliwość cieplną budynku.');
+    } else {
+      const latest = m.closedCycles[m.closedCycles.length - 1];
+      const diffPct = m.avgDailyKg > 0 ? ((latest.dailyKg - m.avgDailyKg) / m.avgDailyKg) * 100 : 0;
+      const trendWord = diffPct > 5 ? `wyższe o ${diffPct.toFixed(1)}%` : diffPct < -5 ? `niższe o ${Math.abs(diffPct).toFixed(1)}%` : 'zbliżone (w normie ±5%)';
+      corrItems.push(`Ostatni rozliczony cykl (${latest.weightKg.toFixed(0)} kg w ${latest.durationDays.toFixed(1)} dni) dał spalanie ${latest.dailyKg.toFixed(2)} kg/dobę (${formatPln(latest.dailyPln)}/dobę) – wynik ${trendWord} względem średniej sezonowej (${m.avgDailyKg.toFixed(2)} kg/dobę).`);
+
+      const validPairs = m.closedCycles.filter(c => c.avgTemp !== null);
+      if (validPairs.length >= 2) {
+        const n = validPairs.length;
+        const meanT = validPairs.reduce((s, c) => s + c.avgTemp, 0) / n;
+        const meanK = validPairs.reduce((s, c) => s + c.dailyKg, 0) / n;
+        let num = 0, den = 0;
+        validPairs.forEach(c => {
+          num += (c.avgTemp - meanT) * (c.dailyKg - meanK);
+          den += (c.avgTemp - meanT) ** 2;
+        });
+        if (den > 0.05) {
+          const slope = num / den; // zmiana kg/dobę na +1°C
+          if (slope < 0) {
+            const extraKgPerDeg = Math.abs(slope);
+            const extraPlnPerDeg = extraKgPerDeg * m.pricePerKg;
+            corrItems.push(`Współczynnik wrażliwości budynku: każdy spadek temperatury zewnętrznej o 1 °C zwiększa zużycie średnio o +${extraKgPerDeg.toFixed(2)} kg/dobę (+${formatPln(extraPlnPerDeg)}/dobę).`);
+          } else {
+            corrItems.push(`Obecna próba danych nie wykazuje jeszcze wyraźnego wzrostu spalania wraz ze spadkiem temperatury (możliwy wpływ zmiany nastaw sterownika lub dogrzewania CWU).`);
+          }
+        }
+      } else {
+        corrItems.push('Zapisuj temperaturę zewnętrzną przy kolejnych zasypach – przy minimum 2 okresach z temperaturą AI wyliczy koszt każdego stopnia mrozu.');
+      }
+
+      if (latest.dailyKg > 18 && latest.avgTemp !== null && latest.avgTemp > 5) {
+        corrItems.push('Wskazówka optymalizacyjna: podwyższone spalanie mimo dodatniej temperatury zewnętrznej – warto skontrolować czystość wymiennika ciepła lub obniżyć moc nadmuchu.');
+      } else {
+        corrItems.push(`Przy obecnym tempie spalania koszt wytworzenia 1 kWh energii cieplnej wynosi ${m.costPerKwh.toFixed(2)} zł (przy sprawności kotła ${state.settings.efficiencyPct}%).`);
+      }
+    }
+    corrEl.innerHTML = corrItems.map(txt => `<li>${txt}</li>`).join('');
+
+    // 2. Sezonowość i koszty miesięczne
+    const monthEl = document.getElementById('aiMonthlyInsights');
+    const monthItems = [];
+    const monthTotals = {};
+    Object.entries(m.dailyMap).forEach(([day, kg]) => {
+      const ym = day.slice(0, 7);
+      monthTotals[ym] = (monthTotals[ym] || 0) + kg;
+    });
+    const mKeys = Object.keys(monthTotals).sort();
+
+    if (mKeys.length === 0) {
+      monthItems.push('Brak rozliczonych danych miesięcznych – wykres zapełni się automatycznie po zamknięciu pierwszego cyklu zasypowego.');
+    } else {
+      let maxM = mKeys[0];
+      mKeys.forEach(k => { if (monthTotals[k] > monthTotals[maxM]) maxM = k; });
+      const maxKg = monthTotals[maxM];
+      monthItems.push(`Najbardziej energochłonny miesiąc w bazie: ${maxM} – rozliczono ${maxKg.toFixed(1)} kg (${(maxKg / m.bw).toFixed(1)} worków) o wartości ${formatPln(maxKg * m.pricePerKg)}.`);
+
+      if (mKeys.length >= 2) {
+        const prevM = mKeys[mKeys.length - 2];
+        const currM = mKeys[mKeys.length - 1];
+        const prevVal = monthTotals[prevM];
+        const currVal = monthTotals[currM];
+        const deltaPct = prevVal > 0 ? ((currVal - prevVal) / prevVal) * 100 : 0;
+        const dir = deltaPct >= 0 ? `wzrost o +${deltaPct.toFixed(1)}%` : `spadek o ${Math.abs(deltaPct).toFixed(1)}%`;
+        monthItems.push(`Dynamika miesiąc do miesiąca (${prevM} → ${currM}): odnotowano ${dir} (${formatPln(prevVal * m.pricePerKg)} vs ${formatPln(currVal * m.pricePerKg)}).`);
+      }
+
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const estMonthKg = m.avgDailyKg * daysInMonth;
+      monthItems.push(`Prognoza pełnego miesiąca przy obecnym tempie (${m.avgDailyKg.toFixed(2)} kg/d): ok. ${estMonthKg.toFixed(0)} kg (${Math.ceil(estMonthKg / m.bw)} worków), co odpowiada kwocie ${formatPln(estMonthKg * m.pricePerKg)}.`);
+    }
+    monthEl.innerHTML = monthItems.map(txt => `<li>${txt}</li>`).join('');
+
+    // 3. Trend 30-dniowy i stabilność
+    const d30El = document.getElementById('aiDaily30Insights');
+    const d30Items = [];
+    const last30Vals = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+      const key = d.toISOString().slice(0, 10);
+      last30Vals.push(m.dailyMap[key] || 0);
+    }
+    const activeDays = last30Vals.filter(v => v > 0);
+    if (activeDays.length === 0) {
+      d30Items.push('Brak rozliczonych dni w ostatnich 30 dobach.');
+    } else {
+      const sum30 = activeDays.reduce((a, b) => a + b, 0);
+      const avg30 = sum30 / activeDays.length;
+      const last7Active = last30Vals.slice(-7).filter(v => v > 0);
+      const avg7 = last7Active.length > 0 ? last7Active.reduce((a, b) => a + b, 0) / last7Active.length : avg30;
+
+      d30Items.push(`W rozliczonych dniach z ostatniego miesiąca (${activeDays.length} dni) spaliłeś łącznie ${sum30.toFixed(1)} kg opału za ${formatPln(sum30 * m.pricePerKg)} (średnio ${avg30.toFixed(2)} kg/dobę).`);
+
+      const diff7 = avg30 > 0 ? ((avg7 - avg30) / avg30) * 100 : 0;
+      if (Math.abs(diff7) < 4) {
+        d30Items.push(`Stabilność pracy kotła: bardzo wysoka – spalanie w ostatnich 7 dniach (${avg7.toFixed(2)} kg/d) niemal idealnie pokrywa się ze średnią 30-dniową.`);
+      } else if (diff7 > 0) {
+        d30Items.push(`Trend krótkoterminowy: w ostatnich dniach zapotrzebowanie na ciepło wzrosło o +${diff7.toFixed(1)}% (${avg7.toFixed(2)} kg/d) względem średniej z 30 dni.`);
+      } else {
+        d30Items.push(`Trend krótkoterminowy: w ostatnich dniach spalanie spadło o ${Math.abs(diff7).toFixed(1)}% (${avg7.toFixed(2)} kg/d) względem średniej z 30 dni.`);
+      }
+
+      if (m.ongoingCycle) {
+        const estUsedSoFar = m.ongoingCycle.durationDays * m.avgDailyKg;
+        const estLeftPct = Math.max(0, Math.min(100, ((m.ongoingCycle.weightKg - estUsedSoFar) / m.ongoingCycle.weightKg) * 100));
+        d30Items.push(`Szacowany poziom w zasobniku (bieżący zasyp ${m.ongoingCycle.weightKg.toFixed(0)} kg trwa ${m.ongoingCycle.durationDays.toFixed(1)} dni): pozostało ok. ${estLeftPct.toFixed(0)}% wsypanego opału.`);
+      }
+    }
+    d30El.innerHTML = d30Items.map(txt => `<li>${txt}</li>`).join('');
+  }
+
+  function refreshAIAnalysis(section) {
+    const m = getCalculatedMetrics();
+    generateAIInsights(m);
+    showToast('Zaktualizowano analizę AI dla wykresu!');
+  }
+
   function renderAll() {
     const m = getCalculatedMetrics();
 
-    // Etykiety worków
     document.getElementById('lblBagWeight').textContent = m.bw;
     [1, 2, 3, 4].forEach(n => {
       const el = document.getElementById(`qb${n}`);
@@ -1068,7 +1294,6 @@
       document.getElementById('kpiCurrentCycleSub').textContent = 'Brak aktywnego zasypu';
     }
 
-    // Okresowe statystyki
     document.getElementById('statWeekKg').textContent = `${m.weekKg.toFixed(1)} kg`;
     document.getElementById('statWeekPln').textContent = formatPln(m.weekPln);
     document.getElementById('statMonthKg').textContent = `${m.monthKg.toFixed(1)} kg`;
@@ -1076,7 +1301,6 @@
     document.getElementById('statYearKg').textContent = `${m.yearKg.toFixed(1)} kg`;
     document.getElementById('statYearPln').textContent = formatPln(m.yearPln);
 
-    // Tabele zasypów (od najnowszego)
     const reversedCycles = [...m.cycles].reverse();
     const recentHtml = reversedCycles.slice(0, 8).map(c => `
       <tr>
@@ -1110,7 +1334,6 @@
     `).join('') || '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Brak wpisów.</td></tr>';
     document.getElementById('fullFeedsBody').innerHTML = fullHtml;
 
-    // Tabela dostaw
     const delHtml = [...state.deliveries].reverse().map(d => {
       const w = d.bags * m.bw;
       return `
@@ -1126,7 +1349,6 @@
     }).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Brak dostaw w magazynie.</td></tr>';
     document.getElementById('deliveriesBody').innerHTML = delHtml;
 
-    // Tabela nastaw
     const prHtml = state.presets.map(p => `
       <tr>
         <td>${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
@@ -1140,7 +1362,6 @@
     `).join('');
     document.getElementById('presetsBody').innerHTML = prHtml;
 
-    // Ustawienia w formularzu
     document.getElementById('setBagWeight').value = state.settings.bagWeight;
     document.getElementById('setPriceTon').value = state.settings.pricePerTon;
     document.getElementById('setCalorific').value = state.settings.calorificMJ;
@@ -1150,6 +1371,7 @@
     document.getElementById('setLon').value = state.settings.lon;
 
     renderCharts(m);
+    generateAIInsights(m);
   }
 
   function updateFeedPreview() {
@@ -1166,7 +1388,6 @@
     updateFeedPreview();
   }
 
-  // Obsługa formularzy
   document.getElementById('feedForm').addEventListener('submit', e => {
     e.preventDefault();
     const bags = Number(document.getElementById('feedBags').value);
@@ -1278,7 +1499,6 @@
     const commonGrid = { color: 'rgba(148, 163, 184, 0.12)' };
     const commonTicks = { color: '#94a3b8' };
 
-    // 1. Korelacja spalania z temperaturą (zamknięte cykle)
     const corrLabels = m.closedCycles.map(c => {
       const d1 = new Date(c.date).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
       const d2 = new Date(c.endDate).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
@@ -1326,7 +1546,6 @@
       }
     });
 
-    // 2. Miesięczne
     const monthTotals = {};
     Object.entries(m.dailyMap).forEach(([day, kg]) => {
       const ym = day.slice(0, 7);
@@ -1357,7 +1576,6 @@
       }
     });
 
-    // 3. Ostatnie 30 dni
     const last30Labels = [];
     const last30Vals = [];
     for (let i = 29; i >= 0; i--) {
@@ -1497,33 +1715,19 @@
   }
 
   function loadExampleData() {
-    const now = new Date();
-    const past29 = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
-    past29.setHours(18, 0, 0, 0);
-
-    const fmt = d => {
-      const c = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-      return c.toISOString().slice(0, 16);
-    };
-
-    state.deliveries = [
-      { id: 101, date: past29.toISOString().slice(0, 10), bags: 80, note: 'Dostawa startowa 2 tony' }
-    ];
-    state.feeds = [
-      { id: 201, date: fmt(past29), bags: 14, temp: 7.5, note: 'Zasyp 350 kg (14 worków)' },
-      { id: 202, date: fmt(now), bags: 6, temp: 1.5, note: 'Dosypanie 150 kg – nowy okres' }
-    ];
+    state = buildInitialDemoState();
     saveState();
     renderAll();
-    showToast('Wczytano dane testowe (350 kg / 29 dni = 12,07 kg/d)');
+    showToast('Przywrócono przykładowe dane testowe!');
   }
 
   function resetAllData() {
     if (!confirm('Czy na pewno chcesz usunąć wszystkie zapisane dane?')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    state = JSON.parse(JSON.stringify(defaultState));
+    state.deliveries = [];
+    state.feeds = [];
+    saveState();
     renderAll();
-    showToast('Wyczyszczono wszystkie dane');
+    showToast('Wyczyszczono historię zasypów i dostaw');
   }
 
   // Przełączanie zakładek
