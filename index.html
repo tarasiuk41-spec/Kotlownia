@@ -53,19 +53,19 @@
     header {
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       border-bottom: 1px solid var(--border);
-      padding: 16px 20px;
+      padding: 14px 20px;
       position: sticky;
       top: 0;
       z-index: 50;
     }
     .header-inner {
-      max-width: 1180px;
+      max-width: 1240px;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .brand {
       display: flex;
@@ -96,7 +96,7 @@
     .header-status {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
     .pill {
@@ -104,7 +104,7 @@
       border: 1px solid var(--border);
       padding: 6px 12px;
       border-radius: 999px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -113,7 +113,7 @@
 
     /* Navigation Tabs */
     .nav-tabs {
-      max-width: 1180px;
+      max-width: 1240px;
       margin: 18px auto 0;
       padding: 0 16px;
       display: flex;
@@ -141,7 +141,7 @@
 
     /* Container & Sections */
     .container {
-      max-width: 1180px;
+      max-width: 1240px;
       margin: 20px auto;
       padding: 0 16px;
     }
@@ -151,7 +151,7 @@
     /* KPI Grid */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
@@ -162,7 +162,7 @@
       padding: 18px;
     }
     .kpi-title {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--text-muted);
@@ -172,19 +172,40 @@
       align-items: center;
     }
     .kpi-value {
-      font-size: 1.7rem;
+      font-size: 1.62rem;
       font-weight: 800;
       color: var(--text-main);
       line-height: 1.2;
     }
     .kpi-sub {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       color: var(--text-muted);
       margin-top: 6px;
     }
     .highlight-orange { color: var(--accent); }
     .highlight-green { color: var(--green); }
     .highlight-blue { color: var(--blue); }
+
+    /* Progress Bar for Boiler Cleaning */
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: var(--bg-input);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+      border: 1px solid var(--border);
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+    .card-alert {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.35);
+    }
 
     /* Quick Action & Forms */
     .two-col {
@@ -222,10 +243,10 @@
       background: var(--accent-soft);
       border: 1px solid var(--accent);
       color: var(--accent);
-      padding: 14px 8px;
+      padding: 12px 6px;
       border-radius: 12px;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.96rem;
       cursor: pointer;
       transition: 0.15s;
       text-align: center;
@@ -242,6 +263,65 @@
       color: #fff;
     }
     .bag-btn:hover small { color: #fff; }
+
+    /* Ash Quality Selector Buttons */
+    .ash-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .ash-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.15s;
+    }
+    .ash-btn.selected-good {
+      background: var(--green-soft);
+      border-color: var(--green);
+      color: #6ee7b7;
+    }
+    .ash-btn.selected-medium {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: var(--amber);
+      color: #fde68a;
+    }
+    .ash-btn.selected-bad {
+      background: var(--red-soft);
+      border-color: var(--red);
+      color: #fca5a5;
+    }
+
+    /* Ash AI Camera Analyzer Box */
+    .ash-camera-box {
+      margin-top: 12px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px dashed rgba(168, 85, 247, 0.5);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .ash-preview-wrap {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    #ashPhotoPreview {
+      width: 96px;
+      height: 96px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: none;
+    }
 
     .form-grid {
       display: grid;
@@ -290,11 +370,13 @@
     .btn:hover { background: var(--accent-hover); }
     .btn-green { background: var(--green); }
     .btn-green:hover { background: #059669; }
+    .btn-blue { background: #2563eb; }
+    .btn-blue:hover { background: #1d4ed8; }
     .btn-purple {
       background: var(--purple-soft);
       border: 1px solid var(--purple);
       color: #e9d5ff;
-      padding: 6px 12px;
+      padding: 7px 12px;
       font-size: 0.82rem;
     }
     .btn-purple:hover {
@@ -307,12 +389,17 @@
       color: var(--text-main);
     }
     .btn-outline:hover { background: var(--bg-card-hover); }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+    }
     .btn-danger {
       background: var(--red-soft);
       border: 1px solid var(--red);
       color: var(--red);
       padding: 6px 10px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
     .btn-danger:hover { background: var(--red); color: #fff; }
 
@@ -355,16 +442,16 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
     th, td {
-      padding: 11px 12px;
+      padding: 10px 10px;
       text-align: left;
       border-bottom: 1px solid var(--border);
     }
     th {
       color: var(--text-muted);
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       text-transform: uppercase;
       background: rgba(15, 23, 42, 0.5);
     }
@@ -373,7 +460,7 @@
       display: inline-block;
       padding: 3px 8px;
       border-radius: 6px;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
     }
     .badge-ongoing {
@@ -440,6 +527,29 @@
       font-size: 0.8rem;
     }
 
+    /* Modal for Editing Entries */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+
     /* Toast notification */
     #toast {
       position: fixed;
@@ -497,7 +607,7 @@
       gap: 10px;
     }
     body.view-android .kpi-value {
-      font-size: 1.32rem;
+      font-size: 1.28rem;
     }
     body.view-android .two-col,
     body.view-android .two-col-equal {
@@ -507,12 +617,12 @@
       grid-template-columns: repeat(3, 1fr);
     }
     body.view-android .bag-btn {
-      padding: 16px 6px;
-      font-size: 1.05rem;
+      padding: 15px 6px;
+      font-size: 1.02rem;
     }
     body.view-android .btn {
-      padding: 14px 18px;
-      font-size: 1rem;
+      padding: 13px 16px;
+      font-size: 0.96rem;
     }
     body.view-android input,
     body.view-android select {
@@ -533,7 +643,7 @@
       width: 100%;
       max-width: 500px;
       margin: 0;
-      padding: 8px 10px;
+      padding: 8px 8px;
       background: rgba(15, 23, 42, 0.96);
       backdrop-filter: blur(10px);
       border-top: 1px solid var(--border);
@@ -544,7 +654,7 @@
     body.view-android .tab-btn {
       flex: 1;
       padding: 8px 4px;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -606,7 +716,7 @@
 <nav class="nav-tabs">
   <button class="tab-btn active" data-tab="dashboard">🏠 Pulpit i Zasyp</button>
   <button class="tab-btn" data-tab="charts">📊 Wykresy i Analiza</button>
-  <button class="tab-btn" data-tab="history">📜 Historia i Dostawy</button>
+  <button class="tab-btn" data-tab="history">📜 Historia i Serwis</button>
   <button class="tab-btn" data-tab="boiler">⚙️ Nastawy Sterownika</button>
   <button class="tab-btn" data-tab="settings">💾 Ustawienia i Excel</button>
 </nav>
@@ -620,7 +730,7 @@
         <div class="kpi-title"><span>Stan magazynu opału</span> <span>📦</span></div>
         <div class="kpi-value" id="kpiStockBags">0 worków</div>
         <div class="kpi-sub" id="kpiStockDetails">0 kg | 0,00 zł</div>
-        <div class="kpi-sub" id="kpiFullStockDetails" style="color:var(--green); font-weight:600; font-size:0.82rem; margin-top:4px;">Załadowano łącznie: 0 kg | 0,00 zł</div>
+        <div class="kpi-sub" id="kpiFullStockDetails" style="color:var(--green); font-weight:600; font-size:0.8rem; margin-top:4px;">Cały załadowany magazyn: 0 kg | 0,00 zł</div>
       </div>
 
       <div class="card">
@@ -639,7 +749,16 @@
         <div class="kpi-title"><span>Bieżący zasyp (trwający cykl)</span> <span>⏳</span></div>
         <div class="kpi-value highlight-blue" id="kpiCurrentCycle">—</div>
         <div class="kpi-sub" id="kpiCurrentCycleSub">Brak aktywnego zasypu</div>
-        <div class="kpi-sub" id="kpiCurrentWeatherSub" style="color:var(--blue); font-weight:600; font-size:0.82rem; margin-top:4px;">🌦️ Śr. temp. od zasypu: pobieranie...</div>
+        <div class="kpi-sub" id="kpiCurrentWeatherSub" style="color:var(--blue); font-weight:600; font-size:0.8rem; margin-top:4px;">🌦️ Śr. temp. od zasypu: pobieranie...</div>
+      </div>
+
+      <!-- Kafelek 5: Licznik czyszczenia kotła i popielnika -->
+      <div class="card" id="cleaningKpiCard">
+        <div class="kpi-title"><span>Czyszczenie kotła i popiołu</span> <span>🧹</span></div>
+        <div class="kpi-value" id="kpiCleanKg">0 / 300 kg</div>
+        <div class="progress-track"><div class="progress-fill" id="cleanProgressFill"></div></div>
+        <div class="kpi-sub" id="kpiCleanSub">Ostatnie czyszczenie: brak wpisu</div>
+        <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px; width:100%;" onclick="logBoilerCleaning()">✅ Wyczyściłem kocioł / popielnik</button>
       </div>
     </div>
 
@@ -648,9 +767,9 @@
       <div class="card">
         <h2 style="margin-bottom:4px;">🪣 Załaduj podajnik (Zasyp do pełna)</h2>
         <p id="fullStockPriceInfo" style="font-size:0.86rem; color:var(--green); font-weight:600; margin-bottom:10px;">
-          Pełny magazyn (wartość początkowa): 0,00 zł (0 worków / 0 kg)
+          Pełny magazyn (cena wyjściowa): 0,00 zł (0 worków / 0 kg)
         </p>
-        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:12px;">
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:10px;">
           Szybki wybór liczby worków (1 worek = <strong id="lblBagWeight">25</strong> kg):
         </p>
         <div class="quick-bags">
@@ -664,7 +783,7 @@
         <form id="feedForm">
           <div class="form-grid">
             <div class="form-group">
-              <label for="feedBags">Liczba worków (możesz wpisać np. 1.5)</label>
+              <label for="feedBags">Liczba worków (np. 2 lub 1.5)</label>
               <input type="number" id="feedBags" step="0.1" min="0.1" value="2" required />
             </div>
             <div class="form-group">
@@ -677,9 +796,39 @@
             </div>
             <div class="form-group">
               <label for="feedNote">Notatka (opcjonalnie)</label>
-              <input type="text" id="feedNote" placeholder="np. czyszczenie popielnika" />
+              <input type="text" id="feedNote" placeholder="np. czyszczenie palnika" />
             </div>
           </div>
+
+          <!-- Ocena jakości spalania i popiołu + Analiza AI ze zdjęcia -->
+          <div style="margin-top:12px;">
+            <label>Ocena popiołu i spalania (opcjonalnie):</label>
+            <input type="hidden" id="feedAshQuality" value="" />
+            <div class="ash-grid">
+              <button type="button" class="ash-btn" data-ash="good" onclick="selectAshQuality('good')">🟢 Sypki popiół<br><small style="font-weight:400;">Idealne spalanie</small></button>
+              <button type="button" class="ash-btn" data-ash="medium" onclick="selectAshQuality('medium')">🟡 Lekkie spieki<br><small style="font-weight:400;">Lekka korekta</small></button>
+              <button type="button" class="ash-btn" data-ash="bad" onclick="selectAshQuality('bad')">🔴 Koks / Sadza<br><small style="font-weight:400;">Złe spalanie</small></button>
+            </div>
+
+            <!-- Moduł zdjęcia popiołu do oceny przez AI -->
+            <div class="ash-camera-box">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:0.84rem; font-weight:700; color:#e9d5ff;">📸 Zrób zdjęcie popielnika – ocena popiołu przez AI</span>
+                <label for="ashCameraInput" class="btn btn-purple" style="margin:0; cursor:pointer;">
+                  📷 Zrób zdjęcie / Wybierz z galerii
+                </label>
+                <input type="file" id="ashCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleAshPhotoUpload(event)" />
+              </div>
+              <div class="ash-preview-wrap" id="ashAiResultWrap" style="display:none;">
+                <img id="ashPhotoPreview" alt="Zdjęcie popiołu" />
+                <div style="flex:1; min-width:200px;">
+                  <div id="ashAiVerdictTitle" style="font-weight:700; font-size:0.9rem; color:#fff;">Analizowanie zdjęcia...</div>
+                  <p id="ashAiVerdictDesc" style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <span id="feedPreview" style="font-size:0.9rem; color:var(--text-muted);">Zasyp: 50 kg (75,00 zł)</span>
             <button type="submit" class="btn">🔥 Zatwierdź zasyp podajnika</button>
@@ -746,7 +895,7 @@
               <th>Czas trwania</th>
               <th>Spalanie dobowe</th>
               <th>Temp.</th>
-              <th>Notatka</th>
+              <th>Popiół / Uwagi</th>
             </tr>
           </thead>
           <tbody id="recentFeedsBody"></tbody>
@@ -760,10 +909,10 @@
     <div class="card" style="margin-bottom:18px;">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
         <h2 style="margin-bottom:0;">🌡️ Śledzenie pogody od zasypu: spalanie dobowe (kg/d) vs realna śr. temperatura okresu (°C)</h2>
-        <button type="button" class="btn btn-outline" style="padding:6px 12px; font-size:0.82rem;" onclick="syncHistoricalWeatherForCycles(true)">🌦️ Pobierz pełną pogodę z API dla okresów</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="syncHistoricalWeatherForCycles(true)">🌦️ Pobierz pełną pogodę z API</button>
       </div>
       <p style="font-size:0.84rem; color:var(--text-muted);">
-        Aplikacja automatycznie pobiera z archiwum i prognozy Open-Meteo <strong>rzeczywistą średnią temperaturę dobową</strong> dla każdego dnia od momentu zasypu do kolejnego załadunku (oraz dla trwającego cyklu od dnia zasypu do dziś), zestawiając ją ze średnim dziennym spalaniem.
+        Aplikacja pobiera z archiwum i prognozy Open-Meteo <strong>rzeczywistą średnią temperaturę dobową</strong> dla każdego dnia od momentu zasypu do kolejnego załadunku (oraz od ostatniego zasypu do dziś), zestawiając ją ze średnim dziennym spalaniem.
       </p>
       <div class="chart-box">
         <canvas id="chartCorrelation"></canvas>
@@ -771,8 +920,8 @@
       <!-- Analiza AI pod wykresem 1 -->
       <div class="ai-box">
         <div class="ai-header">
-          <div class="ai-title">✨ Analiza AI – Korelacja spalania i charakterystyka cieplna budynku</div>
-          <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis('corr')">🔄 Odśwież analizę AI</button>
+          <div class="ai-title">✨ Analiza AI – Korelacja spalania, ocena popiołu i charakterystyka budynku</div>
+          <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis()">🔄 Odśwież analizę AI</button>
         </div>
         <ul class="ai-list" id="aiCorrInsights"></ul>
       </div>
@@ -788,7 +937,7 @@
         <div class="ai-box">
           <div class="ai-header">
             <div class="ai-title">✨ Analiza AI – Sezonowość i koszty miesięczne</div>
-            <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis('monthly')">🔄 Odśwież analizę AI</button>
+            <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis()">🔄 Odśwież analizę AI</button>
           </div>
           <ul class="ai-list" id="aiMonthlyInsights"></ul>
         </div>
@@ -803,7 +952,7 @@
         <div class="ai-box">
           <div class="ai-header">
             <div class="ai-title">✨ Analiza AI – Trend 30-dniowy i stabilność kotła</div>
-            <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis('daily30')">🔄 Odśwież analizę AI</button>
+            <button type="button" class="btn btn-purple" onclick="refreshAIAnalysis()">🔄 Odśwież analizę AI</button>
           </div>
           <ul class="ai-list" id="aiDaily30Insights"></ul>
         </div>
@@ -811,10 +960,10 @@
     </div>
   </section>
 
-  <!-- TAB 3: HISTORIA I DOSTAWY -->
+  <!-- TAB 3: HISTORIA I SERWIS -->
   <section id="tab-history" class="tab-panel">
     <div class="card" style="margin-bottom:18px;">
-      <h2>🪣 Pełna historia zasypów</h2>
+      <h2>🪣 Pełna historia zasypów (z edycją wpisów)</h2>
       <div class="table-wrap">
         <table>
           <thead>
@@ -826,8 +975,8 @@
               <th>Okres (dni)</th>
               <th>Spalanie (kg/d)</th>
               <th>Temp. (°C)</th>
-              <th>Notatka</th>
-              <th>Akcja</th>
+              <th>Popiół / Notatka</th>
+              <th>Akcje</th>
             </tr>
           </thead>
           <tbody id="fullFeedsBody"></tbody>
@@ -835,22 +984,44 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>🚚 Historia dostaw opału</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Worki</th>
-              <th>Waga (kg)</th>
-              <th>Szacowana wartość (PLN)</th>
-              <th>Opis</th>
-              <th>Akcja</th>
-            </tr>
-          </thead>
-          <tbody id="deliveriesBody"></tbody>
-        </table>
+    <div class="two-col-equal">
+      <div class="card">
+        <h2>🚚 Historia dostaw opału</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Worki</th>
+                <th>Waga (kg)</th>
+                <th>Wartość (PLN)</th>
+                <th>Opis</th>
+                <th>Akcje</th>
+              </tr>
+            </thead>
+            <tbody id="deliveriesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2 style="margin-bottom:0;">🧹 Historia czyszczenia kotła i popiołu</h2>
+          <button type="button" class="btn btn-green btn-sm" onclick="logBoilerCleaning()">+ Zapisz czyszczenie</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data i godzina</th>
+                <th>Spalono przed czyszczeniem</th>
+                <th>Uwagi</th>
+                <th>Akcja</th>
+              </tr>
+            </thead>
+            <tbody id="cleaningsBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -937,6 +1108,10 @@
               <input type="number" id="setEfficiency" step="1" min="10" max="100" required />
             </div>
             <div class="form-group">
+              <label for="setCleanThreshold">Alert czyszczenia co (kg)</label>
+              <input type="number" id="setCleanThreshold" step="10" min="50" placeholder="np. 300" required />
+            </div>
+            <div class="form-group">
               <label for="setCity">Miejscowość (dla pogody)</label>
               <div style="display:flex; gap:6px;">
                 <input type="text" id="setCity" placeholder="np. Łapy" />
@@ -950,13 +1125,12 @@
                 <input type="number" id="setLon" step="0.0001" placeholder="22.8853" />
               </div>
             </div>
-          </div>
             <div class="form-group">
               <label for="setViewModeSelect">Tryb wyświetlania aplikacji</label>
               <select id="setViewModeSelect" onchange="setViewMode(this.value)">
                 <option value="auto">🔄 Automatyczny (wykryj urządzenie)</option>
                 <option value="desktop">💻 Wersja na Komputer (szeroki ekran)</option>
-                <option value="android">📱 Wersja na Telefon Android (dolny pasek, duże przyciski)</option>
+                <option value="android">📱 Wersja na Telefon Android (dolny pasek)</option>
               </select>
             </div>
           </div>
@@ -965,11 +1139,12 @@
       </div>
 
       <div class="card">
-        <h2>📊 Kopia zapasowa i Excel (.xlsx)</h2>
+        <h2>📊 Kopia zapasowa, Excel (.xlsx) i Udostępnianie</h2>
         <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:14px;">
-          Eksportuj całą bazę danych kotłowni do wieloarkuszowego pliku Excel (`.xlsx`) lub wgraj wcześniej zapisany plik, aby odtworzyć dane na innym urządzeniu.
+          Eksportuj całą bazę do pliku Excel (`.xlsx`), wyślij kopię jednym kliknięciem na WhatsApp / E-mail w telefonie Android lub wgraj zapisany plik z dysku.
         </p>
         <div style="display:flex; flex-direction:column; gap:12px;">
+          <button type="button" class="btn btn-blue" onclick="shareBackupNative()">📲 Udostępnij kopię zapasową (WhatsApp / E-mail / Android)</button>
           <button type="button" class="btn btn-green" onclick="exportToExcel()">📥 Pobierz bazę w Excel (.xlsx)</button>
 
           <div style="border:1px dashed var(--border); padding:14px; border-radius:10px;">
@@ -982,15 +1157,61 @@
         </div>
       </div>
     </div>
-
   </section>
 
 </main>
 
+<!-- Modal Edycji Wpisu -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal-card">
+    <h2 id="editModalTitle" style="margin-bottom:12px;">✏️ Edytuj wpis</h2>
+    <form id="editForm">
+      <input type="hidden" id="editType" />
+      <input type="hidden" id="editId" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="editBags">Liczba worków</label>
+          <input type="number" id="editBags" step="0.1" min="0.1" required />
+        </div>
+        <div class="form-group" id="editDateTimeGroup">
+          <label for="editDateTime">Data i godzina</label>
+          <input type="datetime-local" id="editDateTime" />
+        </div>
+        <div class="form-group" id="editDateOnlyGroup" style="display:none;">
+          <label for="editDateOnly">Data dostawy</label>
+          <input type="date" id="editDateOnly" />
+        </div>
+        <div class="form-group" id="editTempGroup">
+          <label for="editTemp">Temperatura zewn. (°C)</label>
+          <input type="number" id="editTemp" step="0.1" />
+        </div>
+        <div class="form-group" id="editAshGroup">
+          <label for="editAsh">Ocena popiołu</label>
+          <select id="editAsh">
+            <option value="">— brak oceny —</option>
+            <option value="good">🟢 Sypki popiół</option>
+            <option value="medium">🟡 Lekkie spieki</option>
+            <option value="bad">🔴 Koks / Sadza</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="editNote">Notatka / Opis</label>
+          <input type="text" id="editNote" />
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+        <button type="button" class="btn btn-outline" onclick="closeEditModal()">Anuluj</button>
+        <button type="submit" class="btn">💾 Zapisz zmiany</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="toast">Zapisano!</div>
 
 <script>
-  const STORAGE_KEY = 'kotlownia_app_v3';
+  const STORAGE_KEY = 'kotlownia_app_v4';
+  const VIEW_MODE_KEY = 'kotlownia_view_mode_v1';
 
   function buildInitialDemoState() {
     const now = new Date();
@@ -1008,6 +1229,7 @@
         pricePerTon: 1500,
         calorificMJ: 26,
         efficiencyPct: 85,
+        cleanThresholdKg: 300,
         city: 'Łapy',
         lat: 52.9906,
         lon: 22.8853
@@ -1016,10 +1238,13 @@
         { id: 101, date: d65.toISOString().slice(0, 10), bags: 120, note: 'Dostawa sezonowa 3 tony' }
       ],
       feeds: [
-        { id: 201, date: fmt(d65), bags: 6, temp: 12.0, note: 'Rozruch jesienny (150 kg / 18 dni)' },
-        { id: 202, date: fmt(d47), bags: 8, temp: 8.5, note: 'Zasyp październikowy (200 kg / 18 dni)' },
-        { id: 203, date: fmt(d29), bags: 14, temp: 5.5, note: 'Zasyp 350 kg (14 worków / 29 dni)' },
-        { id: 204, date: fmt(now), bags: 6, temp: 1.5, note: 'Nowy zasyp – okres w toku' }
+        { id: 201, date: fmt(d65), bags: 6, temp: 12.0, ash: 'good', note: 'Rozruch jesienny (150 kg / 18 dni)' },
+        { id: 202, date: fmt(d47), bags: 8, temp: 8.5, ash: 'good', note: 'Zasyp październikowy (200 kg / 18 dni)' },
+        { id: 203, date: fmt(d29), bags: 14, temp: 5.5, ash: 'medium', note: 'Zasyp 350 kg (14 worków / 29 dni)' },
+        { id: 204, date: fmt(now), bags: 6, temp: 1.5, ash: 'good', note: 'Nowy zasyp – okres w toku' }
+      ],
+      cleanings: [
+        { id: 301, date: fmt(d29), burnedKgAtClean: 350, note: 'Wybieranie popiołu i czyszczenie wymiennika' }
       ],
       presets: [
         {
@@ -1043,7 +1268,8 @@
 
   function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      // Migracja z v3 jeśli istnieje
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('kotlownia_app_v3');
       if (!raw) {
         const initial = buildInitialDemoState();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
@@ -1055,6 +1281,7 @@
         settings: { ...base.settings, ...(parsed.settings || {}) },
         deliveries: parsed.deliveries || [],
         feeds: parsed.feeds || [],
+        cleanings: parsed.cleanings || base.cleanings,
         presets: parsed.presets || base.presets,
         dailyWeather: parsed.dailyWeather || {}
       };
@@ -1099,12 +1326,12 @@
     document.getElementById('delDate').value = now.toISOString().slice(0, 10);
   }
 
-  // Pomocnicza funkcja fetch z fallbackiem na zapasowe API pogodowe (wttr.in / Open-Meteo) i korektą przecinków
   function parseCoord(val, fallback) {
     const num = Number(String(val ?? '').replace(',', '.'));
     return isFinite(num) && num !== 0 ? num : fallback;
   }
 
+  // Pogoda na żywo z fallbackiem
   async function fetchLiveWeather() {
     const lat = parseCoord(state.settings.lat, 52.9906);
     const lon = parseCoord(state.settings.lon, 22.8853);
@@ -1133,14 +1360,11 @@
         saveState();
         weatherEl.textContent = `🌡️ ${city}: ${currentLiveTemp.toFixed(1)} °C`;
         const feedTempInput = document.getElementById('feedTemp');
-        if (!feedTempInput.value) {
-          feedTempInput.value = currentLiveTemp.toFixed(1);
-        }
+        if (!feedTempInput.value) feedTempInput.value = currentLiveTemp.toFixed(1);
         return;
       }
       throw new Error('Brak pola temperatury');
     } catch (e1) {
-      // Fallback 2: wttr.in JSON (działa nawet gdy sieć komórkowa 5G/IPv6 blokuje Open-Meteo)
       try {
         const res2 = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`, { cache: 'no-store' });
         if (!res2.ok) throw new Error('wttr HTTP ' + res2.status);
@@ -1157,15 +1381,14 @@
         }
       } catch (e2) {
         if (typeof state.settings.lastKnownTemp === 'number') {
-          weatherEl.textContent = `🌡️ ${city}: ~${state.settings.lastKnownTemp.toFixed(1)} °C (zapisana)`;
+          weatherEl.textContent = `🌡️ ${city}: ~${state.settings.lastKnownTemp.toFixed(1)} °C`;
         } else {
-          weatherEl.textContent = `🌡️ ${city}: kliknij, aby ponowić`;
+          weatherEl.textContent = `🌡️ ${city}: odśwież`;
         }
       }
     }
   }
 
-  // Pobieranie rzeczywistej średniej dobowej temperatury od najstarszego zasypu do dziś (Open-Meteo)
   async function syncHistoricalWeatherForCycles(manualTrigger = false) {
     if (!state.feeds || state.feeds.length === 0) return;
     const lat = parseCoord(state.settings.lat, 52.9906);
@@ -1177,7 +1400,6 @@
     if (!state.dailyWeather) state.dailyWeather = {};
 
     try {
-      // Open-Meteo forecast API z past_days=92 zwraca historię do 3 miesięcy wstecz oraz dzień bieżący
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean,temperature_2m_min,temperature_2m_max&past_days=92&forecast_days=1&timezone=auto`;
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1197,7 +1419,6 @@
         });
       }
 
-      // Jeśli najstarszy zasyp jest starszy niż 90 dni, dociągnij z archive-api
       const diffFromStart = (new Date(todayStr) - new Date(startStr)) / (1000 * 60 * 60 * 24);
       if (diffFromStart > 90) {
         const archEnd = new Date(Date.now() - 88 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -1224,7 +1445,7 @@
       renderAll();
       if (manualTrigger) showToast('Zaktualizowano historię temperatur z Open-Meteo!');
     } catch (e) {
-      if (manualTrigger) showToast('Błąd pobierania historii pogody – sprawdź połączenie lub spróbuj ponownie', true);
+      if (manualTrigger) showToast('Błąd pobierania historii pogody', true);
     }
   }
 
@@ -1267,7 +1488,7 @@
         document.getElementById('setLat').value = place.latitude.toFixed(4);
         document.getElementById('setLon').value = place.longitude.toFixed(4);
         document.getElementById('setCity').value = place.name;
-        showToast(`Znaleziono: ${place.name} (${place.latitude.toFixed(2)}, ${place.longitude.toFixed(2)})`);
+        showToast(`Znaleziono: ${place.name}`);
       } else {
         showToast('Nie znaleziono miejscowości', true);
       }
@@ -1276,12 +1497,134 @@
     }
   }
 
-  // Silnik obliczeniowy: ZASYP ZASILA OKRES DO NASTĘPNEGO ZASYPU
+  // ==========================================
+  // OCENA POPIOŁU + ANALIZA WIZYJNA AI ZE ZDJĘCIA
+  // ==========================================
+  function selectAshQuality(val) {
+    const hidden = document.getElementById('feedAshQuality');
+    const current = hidden.value;
+    const nextVal = (current === val) ? '' : val;
+    hidden.value = nextVal;
+
+    document.querySelectorAll('.ash-btn').forEach(btn => {
+      btn.classList.remove('selected-good', 'selected-medium', 'selected-bad');
+      if (btn.dataset.ash === nextVal) {
+        btn.classList.add('selected-' + nextVal);
+      }
+    });
+  }
+
+  function formatAshBadge(ash) {
+    if (ash === 'good') return '<span class="badge" style="background:var(--green-soft); color:#6ee7b7;">🟢 Sypki popiół</span>';
+    if (ash === 'medium') return '<span class="badge" style="background:rgba(245,158,11,0.18); color:#fde68a;">🟡 Lekkie spieki</span>';
+    if (ash === 'bad') return '<span class="badge" style="background:var(--red-soft); color:#fca5a5;">🔴 Koks / Sadza</span>';
+    return '';
+  }
+
+  function handleAshPhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = new Image();
+      img.onload = function () {
+        const preview = document.getElementById('ashPhotoPreview');
+        const wrap = document.getElementById('ashAiResultWrap');
+        const titleEl = document.getElementById('ashAiVerdictTitle');
+        const descEl = document.getElementById('ashAiVerdictDesc');
+
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        wrap.style.display = 'flex';
+
+        // Analiza wizyjna obrazu popiołu na Canvasie (jasność, odcienie szarości vs czerń sadzy, kontrast grudek/spieków)
+        const canvas = document.createElement('canvas');
+        const size = 120;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        const pixels = ctx.getImageData(0, 0, size, size).data;
+
+        let sumLum = 0;
+        let darkPixels = 0;
+        let brightAshPixels = 0;
+        let edgeDiffSum = 0;
+        const count = size * size;
+
+        const lumGrid = new Float32Array(count);
+        for (let i = 0; i < count; i++) {
+          const r = pixels[i * 4];
+          const g = pixels[i * 4 + 1];
+          const b = pixels[i * 4 + 2];
+          const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+          lumGrid[i] = lum;
+          sumLum += lum;
+          if (lum < 55) darkPixels++;
+          if (lum >= 115 && lum <= 215) brightAshPixels++;
+        }
+
+        // Wykrywanie ziarnistości / ostrych krawędzi spieków
+        for (let y = 1; y < size - 1; y++) {
+          for (let x = 1; x < size - 1; x++) {
+            const idx = y * size + x;
+            const gx = Math.abs(lumGrid[idx + 1] - lumGrid[idx - 1]);
+            const gy = Math.abs(lumGrid[idx + size] - lumGrid[idx - size]);
+            edgeDiffSum += (gx + gy);
+          }
+        }
+
+        const avgLum = sumLum / count;
+        const darkRatio = (darkPixels / count) * 100;
+        const brightRatio = (brightAshPixels / count) * 100;
+        const roughness = edgeDiffSum / count;
+
+        let verdictCode = 'good';
+        let verdictTitle = '';
+        let verdictAdvice = '';
+
+        if (darkRatio > 42 || avgLum < 68) {
+          verdictCode = 'bad';
+          verdictTitle = '🔴 AI: Ciemny popiół / Niedopalony koks i sadza';
+          verdictAdvice = `Wykryto ${darkRatio.toFixed(0)}% ciemnych frakcji (jasność ${avgLum.toFixed(0)}/255). Opał nie dopala się całkowicie – zwiększ moc nadmuchu o +3% do +5% lub wydłuż przerwę podawania o 2–3 s.`;
+        } else if (roughness > 26 || (darkRatio > 22 && roughness > 20)) {
+          verdictCode = 'medium';
+          verdictTitle = '🟡 AI: Zauważalne spieki / Grudkowata struktura';
+          verdictAdvice = `Struktura wskazuje na obecność spieków żużlowych (wskaźnik ziarnistości ${roughness.toFixed(1)}). Zbyt wysoka temperatura w palniku – obniż moc nadmuchu o -2% do -3% lub skróć czas podawania o 0,5 s.`;
+        } else {
+          verdictCode = 'good';
+          verdictTitle = '🟢 AI: Jasny, sypki popiół – spalanie optymalne';
+          verdictAdvice = `Bardzo dobry wynik (${brightRatio.toFixed(0)}% jasnego popiołu, jednorodna tekstura). Obecne nastawy nadmuchu i podawania są dobrze dobrane do kaloryczności opału.`;
+        }
+
+        titleEl.textContent = verdictTitle;
+        descEl.textContent = verdictAdvice;
+
+        // Automatycznie zaznacz odpowiedni przycisk oceny i dopisz skrót do notatki jeśli pusta
+        document.getElementById('feedAshQuality').value = '';
+        selectAshQuality(verdictCode);
+
+        const noteEl = document.getElementById('feedNote');
+        if (!noteEl.value.trim()) {
+          noteEl.value = verdictTitle.replace(/^[^\s]+\sAI:\s/, 'AI: ');
+        }
+        showToast('AI przeanalizowało zdjęcie popiołu!');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ==========================================
+  // SILNIK OBLICZENIOWY
+  // ==========================================
   function getCalculatedMetrics() {
     const bw = Number(state.settings.bagWeight) || 25;
     const pricePerKg = (Number(state.settings.pricePerTon) || 0) / 1000;
     const calorific = Number(state.settings.calorificMJ) || 26;
     const eff = (Number(state.settings.efficiencyPct) || 85) / 100;
+    const cleanThresholdKg = Number(state.settings.cleanThresholdKg) || 300;
 
     const sortedFeeds = [...state.feeds].sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -1363,6 +1706,23 @@
     const totalAvailableKg = stockKg + remainingInHopperKg;
     const forecastDays = avgDailyKg > 0 ? totalAvailableKg / avgDailyKg : null;
 
+    // Licznik czyszczenia kotła (ile kg wsypano/spalono od ostatniego czyszczenia)
+    const sortedCleanings = [...(state.cleanings || [])].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const lastCleaning = sortedCleanings.length > 0 ? sortedCleanings[sortedCleanings.length - 1] : null;
+    const lastCleanTime = lastCleaning ? new Date(lastCleaning.date).getTime() : 0;
+
+    let burnedSinceCleanKg = 0;
+    cycles.forEach(c => {
+      const cTime = new Date(c.date).getTime();
+      if (cTime > lastCleanTime) {
+        if (c.status === 'closed') {
+          burnedSinceCleanKg += c.weightKg;
+        } else if (avgDailyKg > 0) {
+          burnedSinceCleanKg += Math.min(c.weightKg, c.durationDays * avgDailyKg);
+        }
+      }
+    });
+
     const dailyMap = {};
     closedCycles.forEach(c => {
       const start = new Date(c.date);
@@ -1407,6 +1767,9 @@
       avgDailyPln,
       costPerKwh,
       forecastDays,
+      cleanThresholdKg,
+      lastCleaning,
+      burnedSinceCleanKg,
       dailyMap,
       weekKg,
       weekPln: weekKg * pricePerKg,
@@ -1432,9 +1795,37 @@
     });
   }
 
+  // Czyszczenie kotła
+  function logBoilerCleaning() {
+    const m = getCalculatedMetrics();
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const isoNow = now.toISOString().slice(0, 16);
+
+    const noteInput = prompt('Opcjonalna uwaga do czyszczenia (np. pełna szuflada popiołu, czysto):', 'Wybranie popiołu i czyszczenie wymiennika');
+    if (noteInput === null) return;
+
+    if (!state.cleanings) state.cleanings = [];
+    state.cleanings.push({
+      id: Date.now(),
+      date: isoNow,
+      burnedKgAtClean: Number(m.burnedSinceCleanKg.toFixed(1)),
+      note: noteInput.trim() || 'Czyszczenie kotła'
+    });
+    saveState();
+    renderAll();
+    showToast('Zapisano czyszczenie kotła! Licznik wyzerowany.');
+  }
+
+  function deleteCleaning(id) {
+    state.cleanings = (state.cleanings || []).filter(c => c.id !== id);
+    saveState();
+    renderAll();
+    showToast('Usunięto wpis czyszczenia');
+  }
+
   // Silnik Analizy AI pod wykresami
   function generateAIInsights(m) {
-    // 1. Korelacja spalania z temperaturą
     const corrEl = document.getElementById('aiCorrInsights');
     const corrItems = [];
     if (m.closedCycles.length === 0) {
@@ -1456,17 +1847,21 @@
           den += (c.avgTemp - meanT) ** 2;
         });
         if (den > 0.05) {
-          const slope = num / den; // zmiana kg/dobę na +1°C
+          const slope = num / den;
           if (slope < 0) {
             const extraKgPerDeg = Math.abs(slope);
             const extraPlnPerDeg = extraKgPerDeg * m.pricePerKg;
             corrItems.push(`Współczynnik wrażliwości budynku: każdy spadek temperatury zewnętrznej o 1 °C zwiększa zużycie średnio o +${extraKgPerDeg.toFixed(2)} kg/dobę (+${formatPln(extraPlnPerDeg)}/dobę).`);
-          } else {
-            corrItems.push(`Obecna próba danych nie wykazuje jeszcze wyraźnego wzrostu spalania wraz ze spadkiem temperatury (możliwy wpływ zmiany nastaw sterownika lub dogrzewania CWU).`);
           }
         }
-      } else {
-        corrItems.push('Zapisuj temperaturę zewnętrzną przy kolejnych zasypach – przy minimum 2 okresach z temperaturą AI wyliczy koszt każdego stopnia mrozu.');
+      }
+
+      // Analiza jakości popiołu z wpisów
+      const ashCounts = { good: 0, medium: 0, bad: 0 };
+      m.cycles.forEach(c => { if (c.ash && ashCounts[c.ash] !== undefined) ashCounts[c.ash]++; });
+      const totalAshRated = ashCounts.good + ashCounts.medium + ashCounts.bad;
+      if (totalAshRated > 0) {
+        corrItems.push(`Jakość spalania (na podstawie ${totalAshRated} ocen popiołu): ${ashCounts.good}x sypki popiół, ${ashCounts.medium}x lekkie spieki, ${ashCounts.bad}x koks/sadza. ${ashCounts.bad > 0 ? 'Zalecana lekka korekta nadmuchu w zakładce Nastawy Sterownika.' : 'Utrzymujesz bardzo dobrą czystość spalania.'}`);
       }
 
       if (m.ongoingCycle && m.ongoingCycle.avgTemp !== null && m.avgDailyKg > 0) {
@@ -1478,16 +1873,10 @@
           : `temperatura utrzymuje się na podobnym poziomie jak w poprzednim okresie.`;
         corrItems.push(`Trwający cykl (od ${formatDateTime(m.ongoingCycle.date)}): średnia temperatura od momentu zasypu wynosi ${m.ongoingCycle.avgTemp.toFixed(1)} °C (${tempMsg})`);
       }
-
-      if (latest.dailyKg > 18 && latest.avgTemp !== null && latest.avgTemp > 5) {
-        corrItems.push('Wskazówka optymalizacyjna: podwyższone spalanie mimo dodatniej temperatury zewnętrznej – warto skontrolować czystość wymiennika ciepła lub obniżyć moc nadmuchu.');
-      } else {
-        corrItems.push(`Średnia dzienna ilość spalania w zamkniętych cyklach to ${m.avgDailyKg.toFixed(2)} kg/dobę (${(m.avgDailyKg / m.bw).toFixed(2)} worka/dobę), co daje koszt ${m.costPerKwh.toFixed(2)} zł/kWh ciepła.`);
-      }
     }
     corrEl.innerHTML = corrItems.map(txt => `<li>${txt}</li>`).join('');
 
-    // 2. Sezonowość i koszty miesięczne
+    // 2. Miesięczne
     const monthEl = document.getElementById('aiMonthlyInsights');
     const monthItems = [];
     const monthTotals = {};
@@ -1517,16 +1906,6 @@
       const maxTempTxt = monthTempAcc[maxM] ? ` przy śr. temp. dobowej ${(monthTempAcc[maxM].sum / monthTempAcc[maxM].count).toFixed(1)} °C` : '';
       monthItems.push(`Najbardziej energochłonny miesiąc w bazie: ${maxM}${maxTempTxt} – rozliczono ${maxKg.toFixed(1)} kg (${(maxKg / m.bw).toFixed(1)} worków) o wartości ${formatPln(maxKg * m.pricePerKg)}.`);
 
-      if (mKeys.length >= 2) {
-        const prevM = mKeys[mKeys.length - 2];
-        const currM = mKeys[mKeys.length - 1];
-        const prevVal = monthTotals[prevM];
-        const currVal = monthTotals[currM];
-        const deltaPct = prevVal > 0 ? ((currVal - prevVal) / prevVal) * 100 : 0;
-        const dir = deltaPct >= 0 ? `wzrost o +${deltaPct.toFixed(1)}%` : `spadek o ${Math.abs(deltaPct).toFixed(1)}%`;
-        monthItems.push(`Dynamika miesiąc do miesiąca (${prevM} → ${currM}): odnotowano ${dir} (${formatPln(prevVal * m.pricePerKg)} vs ${formatPln(currVal * m.pricePerKg)}).`);
-      }
-
       const now = new Date();
       const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const estMonthKg = m.avgDailyKg * daysInMonth;
@@ -1534,7 +1913,7 @@
     }
     monthEl.innerHTML = monthItems.map(txt => `<li>${txt}</li>`).join('');
 
-    // 3. Trend 30-dniowy i stabilność
+    // 3. 30 dni
     const d30El = document.getElementById('aiDaily30Insights');
     const d30Items = [];
     const last30Vals = [];
@@ -1549,19 +1928,7 @@
     } else {
       const sum30 = activeDays.reduce((a, b) => a + b, 0);
       const avg30 = sum30 / activeDays.length;
-      const last7Active = last30Vals.slice(-7).filter(v => v > 0);
-      const avg7 = last7Active.length > 0 ? last7Active.reduce((a, b) => a + b, 0) / last7Active.length : avg30;
-
       d30Items.push(`W rozliczonych dniach z ostatniego miesiąca (${activeDays.length} dni) spaliłeś łącznie ${sum30.toFixed(1)} kg opału za ${formatPln(sum30 * m.pricePerKg)} (średnio ${avg30.toFixed(2)} kg/dobę).`);
-
-      const diff7 = avg30 > 0 ? ((avg7 - avg30) / avg30) * 100 : 0;
-      if (Math.abs(diff7) < 4) {
-        d30Items.push(`Stabilność pracy kotła: bardzo wysoka – spalanie w ostatnich 7 dniach (${avg7.toFixed(2)} kg/d) niemal idealnie pokrywa się ze średnią 30-dniową.`);
-      } else if (diff7 > 0) {
-        d30Items.push(`Trend krótkoterminowy: w ostatnich dniach zapotrzebowanie na ciepło wzrosło o +${diff7.toFixed(1)}% (${avg7.toFixed(2)} kg/d) względem średniej z 30 dni.`);
-      } else {
-        d30Items.push(`Trend krótkoterminowy: w ostatnich dniach spalanie spadło o ${Math.abs(diff7).toFixed(1)}% (${avg7.toFixed(2)} kg/d) względem średniej z 30 dni.`);
-      }
 
       if (m.ongoingCycle) {
         const estUsedSoFar = m.ongoingCycle.durationDays * m.avgDailyKg;
@@ -1572,10 +1939,9 @@
     d30El.innerHTML = d30Items.map(txt => `<li>${txt}</li>`).join('');
   }
 
-  function refreshAIAnalysis(section) {
-    const m = getCalculatedMetrics();
-    generateAIInsights(m);
-    showToast('Zaktualizowano analizę AI dla wykresu!');
+  function refreshAIAnalysis() {
+    generateAIInsights(getCalculatedMetrics());
+    showToast('Zaktualizowano analizę AI!');
   }
 
   function renderAll() {
@@ -1588,7 +1954,6 @@
     });
     updateFeedPreview();
 
-    // Pełny magazyn (wartość wyjściowa z dostaw)
     const fullPriceEl = document.getElementById('fullStockPriceInfo');
     if (fullPriceEl) {
       fullPriceEl.textContent = `Pełny magazyn (cena wyjściowa): ${formatPln(m.totalDeliveredPln)} (${Number(m.totalDeliveredBags.toFixed(1))} worków / ${m.totalDeliveredKg.toFixed(0)} kg)`;
@@ -1597,10 +1962,7 @@
     // KPI
     document.getElementById('kpiStockBags').textContent = `${Number(m.stockBags.toFixed(1))} worków`;
     document.getElementById('kpiStockDetails').textContent = `${m.stockKg.toFixed(0)} kg | ${formatPln(m.stockPln)}`;
-    const kpiFullEl = document.getElementById('kpiFullStockDetails');
-    if (kpiFullEl) {
-      kpiFullEl.textContent = `Cały załadowany magazyn: ${m.totalDeliveredKg.toFixed(0)} kg | ${formatPln(m.totalDeliveredPln)}`;
-    }
+    document.getElementById('kpiFullStockDetails').textContent = `Cały załadowany magazyn: ${m.totalDeliveredKg.toFixed(0)} kg | ${formatPln(m.totalDeliveredPln)}`;
 
     document.getElementById('kpiAvgBurn').textContent = `${m.avgDailyKg.toFixed(2)} kg/dobę`;
     document.getElementById('kpiAvgCost').textContent = `${formatPln(m.avgDailyPln)}/dobę | ${m.costPerKwh.toFixed(2)} zł/kWh`;
@@ -1619,22 +1981,46 @@
     if (m.ongoingCycle) {
       document.getElementById('kpiCurrentCycle').textContent = `${m.ongoingCycle.weightKg.toFixed(0)} kg (${m.ongoingCycle.bags} w.)`;
       document.getElementById('kpiCurrentCycleSub').textContent = `Trwa od ${m.ongoingCycle.durationDays.toFixed(1)} dni (${formatDateTime(m.ongoingCycle.date)})`;
-      if (curWeatherEl) {
-        if (m.ongoingCycle.weatherStats) {
-          const ws = m.ongoingCycle.weatherStats;
-          curWeatherEl.textContent = `🌦️ Śr. temp. od zasypu: ${ws.avg.toFixed(1)} °C (min ${ws.min ?? '—'}° / max ${ws.max ?? '—'}°)`;
-        } else if (m.ongoingCycle.avgTemp !== null) {
-          curWeatherEl.textContent = `🌡️ Temp. w dniu zasypu: ${m.ongoingCycle.avgTemp.toFixed(1)} °C`;
-        } else {
-          curWeatherEl.textContent = `🌦️ Śr. temp. od zasypu: oczekiwanie na dane`;
-        }
+      if (m.ongoingCycle.weatherStats) {
+        const ws = m.ongoingCycle.weatherStats;
+        curWeatherEl.textContent = `🌦️ Śr. temp. od zasypu: ${ws.avg.toFixed(1)} °C (min ${ws.min ?? '—'}° / max ${ws.max ?? '—'}°)`;
+      } else if (m.ongoingCycle.avgTemp !== null) {
+        curWeatherEl.textContent = `🌡️ Temp. w dniu zasypu: ${m.ongoingCycle.avgTemp.toFixed(1)} °C`;
+      } else {
+        curWeatherEl.textContent = `🌦️ Śr. temp. od zasypu: oczekiwanie na dane`;
       }
     } else {
       document.getElementById('kpiCurrentCycle').textContent = '—';
       document.getElementById('kpiCurrentCycleSub').textContent = 'Brak aktywnego zasypu';
-      if (curWeatherEl) curWeatherEl.textContent = '🌦️ Śr. temp. od zasypu: —';
+      curWeatherEl.textContent = '🌦️ Śr. temp. od zasypu: —';
     }
 
+    // KPI Czyszczenie kotła
+    const cleanPct = Math.min(100, (m.burnedSinceCleanKg / m.cleanThresholdKg) * 100);
+    const cleanCard = document.getElementById('cleaningKpiCard');
+    const cleanFill = document.getElementById('cleanProgressFill');
+    document.getElementById('kpiCleanKg').textContent = `${m.burnedSinceCleanKg.toFixed(0)} / ${m.cleanThresholdKg} kg`;
+    cleanFill.style.width = `${cleanPct}%`;
+
+    if (cleanPct >= 100) {
+      cleanFill.style.background = '#ef4444';
+      cleanCard.classList.add('card-alert');
+      document.getElementById('kpiCleanSub').innerHTML = `<strong style="color:#fca5a5;">⚠️ Czas wyczyścić wymiennik i popielnik!</strong>`;
+    } else if (cleanPct >= 80) {
+      cleanFill.style.background = '#f59e0b';
+      cleanCard.classList.remove('card-alert');
+      document.getElementById('kpiCleanSub').textContent = m.lastCleaning
+        ? `Zbliża się czyszczenie (ost. ${formatDateTime(m.lastCleaning.date).slice(0, 10)})`
+        : 'Zbliża się termin czyszczenia';
+    } else {
+      cleanFill.style.background = '#10b981';
+      cleanCard.classList.remove('card-alert');
+      document.getElementById('kpiCleanSub').textContent = m.lastCleaning
+        ? `Ostatnio: ${formatDateTime(m.lastCleaning.date)}`
+        : 'Ostatnie czyszczenie: brak wpisu';
+    }
+
+    // Okresowe
     document.getElementById('statWeekKg').textContent = `${m.weekKg.toFixed(1)} kg`;
     document.getElementById('statWeekPln').textContent = formatPln(m.weekPln);
     document.getElementById('statMonthKg').textContent = `${m.monthKg.toFixed(1)} kg`;
@@ -1642,6 +2028,7 @@
     document.getElementById('statYearKg').textContent = `${m.yearKg.toFixed(1)} kg`;
     document.getElementById('statYearPln').textContent = formatPln(m.yearPln);
 
+    // Tabele zasypów
     const reversedCycles = [...m.cycles].reverse();
     const recentHtml = reversedCycles.slice(0, 8).map(c => `
       <tr>
@@ -1652,8 +2039,8 @@
           ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
           : `<span class="badge badge-done">${c.durationDays.toFixed(1)} dni</span>`}</td>
         <td>${c.status === 'ongoing' ? '<em>trwa...</em>' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
-        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' <span title="Średnia z API Open-Meteo dla całego okresu">🌦️</span>' : ''}` : '—'}</td>
-        <td>${c.note || '—'}</td>
+        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' 🌦️' : ''}` : '—'}</td>
+        <td>${formatAshBadge(c.ash)} ${c.note || ''}</td>
       </tr>
     `).join('') || '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Brak zarejestrowanych zasypów.</td></tr>';
     document.getElementById('recentFeedsBody').innerHTML = recentHtml;
@@ -1668,13 +2055,17 @@
           ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
           : `${c.durationDays.toFixed(2)} dni`}</td>
         <td>${c.status === 'ongoing' ? '—' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
-        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' <span title="Średnia z API Open-Meteo dla całego okresu">🌦️</span>' : ''}` : '—'}</td>
-        <td>${c.note || '—'}</td>
-        <td><button class="btn btn-danger" onclick="deleteFeed(${c.id})">Usuń</button></td>
+        <td>${c.avgTemp !== null ? `<strong>${c.avgTemp.toFixed(1)} °C</strong>${c.weatherStats ? ' 🌦️' : ''}` : '—'}</td>
+        <td>${formatAshBadge(c.ash)} ${c.note || ''}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-outline btn-sm" onclick="openEditModal('feed', ${c.id})">✏️ Edytuj</button>
+          <button class="btn btn-danger" onclick="deleteFeed(${c.id})">Usuń</button>
+        </td>
       </tr>
     `).join('') || '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Brak wpisów.</td></tr>';
     document.getElementById('fullFeedsBody').innerHTML = fullHtml;
 
+    // Dostawy
     const delHtml = [...state.deliveries].reverse().map(d => {
       const w = d.bags * m.bw;
       return `
@@ -1684,15 +2075,30 @@
           <td>${w.toFixed(0)} kg</td>
           <td>${formatPln(w * m.pricePerKg)}</td>
           <td>${d.note || '—'}</td>
-          <td><button class="btn btn-danger" onclick="deleteDelivery(${d.id})">Usuń</button></td>
+          <td style="white-space:nowrap;">
+            <button class="btn btn-outline btn-sm" onclick="openEditModal('delivery', ${d.id})">✏️ Edytuj</button>
+            <button class="btn btn-danger" onclick="deleteDelivery(${d.id})">Usuń</button>
+          </td>
         </tr>
       `;
     }).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Brak dostaw w magazynie.</td></tr>';
     document.getElementById('deliveriesBody').innerHTML = delHtml;
 
+    // Czyszczenia
+    const cleanHtml = [...(state.cleanings || [])].reverse().map(cl => `
+      <tr>
+        <td>${formatDateTime(cl.date)}</td>
+        <td>${cl.burnedKgAtClean ?? 0} kg</td>
+        <td>${cl.note || '—'}</td>
+        <td><button class="btn btn-danger" onclick="deleteCleaning(${cl.id})">Usuń</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Brak zapisanych czyszczeń.</td></tr>';
+    document.getElementById('cleaningsBody').innerHTML = cleanHtml;
+
+    // Nastawy
     const prHtml = state.presets.map(p => `
       <tr>
-        <td>${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
+        <td>${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline btn-sm" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
         <td><strong>${p.name}</strong></td>
         <td>${p.feedTime}s / ${p.pauseTime}s</td>
         <td>${p.fan}%</td>
@@ -1703,10 +2109,12 @@
     `).join('');
     document.getElementById('presetsBody').innerHTML = prHtml;
 
+    // Ustawienia
     document.getElementById('setBagWeight').value = state.settings.bagWeight;
     document.getElementById('setPriceTon').value = state.settings.pricePerTon;
     document.getElementById('setCalorific').value = state.settings.calorificMJ;
     document.getElementById('setEfficiency').value = state.settings.efficiencyPct;
+    document.getElementById('setCleanThreshold').value = state.settings.cleanThresholdKg || 300;
     document.getElementById('setCity').value = state.settings.city;
     document.getElementById('setLat').value = state.settings.lat;
     document.getElementById('setLon').value = state.settings.lon;
@@ -1729,11 +2137,98 @@
     updateFeedPreview();
   }
 
+  // ==========================================
+  // MODAL EDYCJI WPISÓW (ZASYPY I DOSTAWY)
+  // ==========================================
+  function openEditModal(type, id) {
+    document.getElementById('editType').value = type;
+    document.getElementById('editId').value = id;
+
+    if (type === 'feed') {
+      const item = state.feeds.find(f => f.id === id);
+      if (!item) return;
+      document.getElementById('editModalTitle').textContent = '✏️ Edytuj wpis zasypu';
+      document.getElementById('editDateTimeGroup').style.display = 'flex';
+      document.getElementById('editDateOnlyGroup').style.display = 'none';
+      document.getElementById('editTempGroup').style.display = 'flex';
+      document.getElementById('editAshGroup').style.display = 'flex';
+
+      document.getElementById('editBags').value = item.bags;
+      document.getElementById('editDateTime').value = item.date.slice(0, 16);
+      document.getElementById('editTemp').value = item.temp ?? '';
+      document.getElementById('editAsh').value = item.ash || '';
+      document.getElementById('editNote').value = item.note || '';
+    } else {
+      const item = state.deliveries.find(d => d.id === id);
+      if (!item) return;
+      document.getElementById('editModalTitle').textContent = '✏️ Edytuj wpis dostawy';
+      document.getElementById('editDateTimeGroup').style.display = 'none';
+      document.getElementById('editDateOnlyGroup').style.display = 'flex';
+      document.getElementById('editTempGroup').style.display = 'none';
+      document.getElementById('editAshGroup').style.display = 'none';
+
+      document.getElementById('editBags').value = item.bags;
+      document.getElementById('editDateOnly').value = item.date.slice(0, 10);
+      document.getElementById('editNote').value = item.note || '';
+    }
+
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+  }
+
+  document.getElementById('editForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const type = document.getElementById('editType').value;
+    const id = Number(document.getElementById('editId').value);
+    const bags = Number(document.getElementById('editBags').value);
+    const note = document.getElementById('editNote').value.trim();
+
+    if (!bags || bags <= 0) return;
+
+    if (type === 'feed') {
+      const idx = state.feeds.findIndex(f => f.id === id);
+      if (idx !== -1) {
+        const tempVal = document.getElementById('editTemp').value;
+        state.feeds[idx] = {
+          ...state.feeds[idx],
+          bags,
+          date: document.getElementById('editDateTime').value,
+          temp: tempVal !== '' ? Number(tempVal) : null,
+          ash: document.getElementById('editAsh').value,
+          note
+        };
+      }
+    } else {
+      const idx = state.deliveries.findIndex(d => d.id === id);
+      if (idx !== -1) {
+        state.deliveries[idx] = {
+          ...state.deliveries[idx],
+          bags,
+          date: document.getElementById('editDateOnly').value,
+          note
+        };
+      }
+    }
+
+    saveState();
+    renderAll();
+    syncHistoricalWeatherForCycles(false);
+    closeEditModal();
+    showToast('Zaktualizowano wpis!');
+  });
+
+  // ==========================================
+  // FORMULARZE DODAWANIA
+  // ==========================================
   document.getElementById('feedForm').addEventListener('submit', e => {
     e.preventDefault();
     const bags = Number(document.getElementById('feedBags').value);
     const date = document.getElementById('feedDate').value;
     const tempVal = document.getElementById('feedTemp').value;
+    const ash = document.getElementById('feedAshQuality').value;
     const note = document.getElementById('feedNote').value.trim();
 
     if (!bags || bags <= 0 || !date) return;
@@ -1743,12 +2238,17 @@
       bags,
       date,
       temp: tempVal !== '' ? Number(tempVal) : null,
+      ash,
       note
     });
     saveState();
     renderAll();
     syncHistoricalWeatherForCycles(false);
+
     document.getElementById('feedNote').value = '';
+    document.getElementById('feedAshQuality').value = '';
+    document.querySelectorAll('.ash-btn').forEach(b => b.classList.remove('selected-good', 'selected-medium', 'selected-bad'));
+    document.getElementById('ashAiResultWrap').style.display = 'none';
     setDefaultFormDates();
     showToast(`Zapisano zasyp: ${bags} worków!`);
   });
@@ -1799,6 +2299,7 @@
       pricePerTon: Number(document.getElementById('setPriceTon').value) || 1500,
       calorificMJ: Number(document.getElementById('setCalorific').value) || 26,
       efficiencyPct: Number(document.getElementById('setEfficiency').value) || 85,
+      cleanThresholdKg: Number(document.getElementById('setCleanThreshold').value) || 300,
       city: document.getElementById('setCity').value.trim() || 'Łapy',
       lat: parseCoord(document.getElementById('setLat').value, 52.9906),
       lon: parseCoord(document.getElementById('setLon').value, 22.8853)
@@ -1837,7 +2338,9 @@
     renderAll();
   }
 
-  // Wykresy Chart.js
+  // ==========================================
+  // WYKRESY CHART.JS
+  // ==========================================
   function renderCharts(m) {
     const commonGrid = { color: 'rgba(148, 163, 184, 0.12)' };
     const commonTicks = { color: '#94a3b8' };
@@ -2019,8 +2522,10 @@
     });
   }
 
-  // Eksport i Import Excel (SheetJS)
-  function exportToExcel() {
+  // ==========================================
+  // EKSPORT EXCEL + UDOSTĘPNIANIE ANDROID (NAVIGATOR.SHARE)
+  // ==========================================
+  function buildExcelWorkbook() {
     const wb = XLSX.utils.book_new();
     const m = getCalculatedMetrics();
 
@@ -2033,7 +2538,8 @@
       Status: c.status === 'ongoing' ? 'Trwa' : 'Rozliczony',
       Czas_trwania_dni: Number(c.durationDays.toFixed(2)),
       Spalanie_dobowe_kg: c.dailyKg ? Number(c.dailyKg.toFixed(2)) : '',
-      Temperatura_C: c.temp ?? '',
+      Temperatura_C: c.avgTemp ?? '',
+      Ocena_popiolu: c.ash || '',
       Notatka: c.note || ''
     }));
 
@@ -2043,6 +2549,13 @@
       Worki: d.bags,
       Waga_kg: d.bags * m.bw,
       Opis: d.note || ''
+    }));
+
+    const cleanSheetData = (state.cleanings || []).map(cl => ({
+      ID: cl.id,
+      Data_Godzina: cl.date,
+      Spalono_kg: cl.burnedKgAtClean || 0,
+      Uwagi: cl.note || ''
     }));
 
     const presetsSheetData = state.presets.map(p => ({
@@ -2056,16 +2569,66 @@
       Aktywny: p.active ? 'TAK' : 'NIE'
     }));
 
-    const settingsSheetData = [state.settings];
-
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(feedsSheetData), 'Historia_Zasypow');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(delSheetData), 'Dostawy');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(cleanSheetData), 'Czyszczenia');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(presetsSheetData), 'Dziennik_Nastaw');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(settingsSheetData), 'Ustawienia');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([state.settings]), 'Ustawienia');
 
+    return wb;
+  }
+
+  function exportToExcel() {
+    const wb = buildExcelWorkbook();
     const fileName = `Kotlownia_Baza_${new Date().toISOString().slice(0, 10)}.xlsx`;
     XLSX.writeFile(wb, fileName);
     showToast('Wyeksportowano plik Excel!');
+  }
+
+  async function shareBackupNative() {
+    const m = getCalculatedMetrics();
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const fileName = `Kotlownia_Kopia_${dateStr}.xlsx`;
+    const summaryText = `🔥 Kotłownia (${dateStr})
+` +
+      `📦 Magazyn: ${Number(m.stockBags.toFixed(1))} worków (${m.stockKg.toFixed(0)} kg | ${formatPln(m.stockPln)})
+` +
+      `🔥 Śr. spalanie: ${m.avgDailyKg.toFixed(2)} kg/dobę (${formatPln(m.avgDailyPln)}/dobę)
+` +
+      `📅 Prognoza: ${m.forecastDays ? '~' + Math.floor(m.forecastDays) + ' dni' : 'brak danych'}`;
+
+    try {
+      const wb = buildExcelWorkbook();
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const file = new File([wbout], fileName, {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'Kotłownia – Kopia zapasowa Excel',
+          text: summaryText,
+          files: [file]
+        });
+        showToast('Udostępniono plik Excel!');
+        return;
+      }
+
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Kotłownia – Podsumowanie',
+          text: summaryText
+        });
+        exportToExcel();
+        return;
+      }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+
+    // Fallback dla przeglądarki na komputerze bez natywnego menu udostępniania
+    exportToExcel();
+    showToast('Pobrano plik Excel na dysk (brak systemowego menu udostępniania w tej przeglądarce).');
   }
 
   function importFromExcel(event) {
@@ -2080,9 +2643,7 @@
 
         if (wb.Sheets['Ustawienia']) {
           const sRows = XLSX.utils.sheet_to_json(wb.Sheets['Ustawienia']);
-          if (sRows.length > 0) {
-            state.settings = { ...state.settings, ...sRows[0] };
-          }
+          if (sRows.length > 0) state.settings = { ...state.settings, ...sRows[0] };
         }
         if (wb.Sheets['Dostawy']) {
           const dRows = XLSX.utils.sheet_to_json(wb.Sheets['Dostawy']);
@@ -2100,7 +2661,17 @@
             date: r.Data_Godzina,
             bags: Number(r.Worki),
             temp: r.Temperatura_C !== '' && r.Temperatura_C !== undefined ? Number(r.Temperatura_C) : null,
+            ash: r.Ocena_popiolu || '',
             note: r.Notatka || ''
+          }));
+        }
+        if (wb.Sheets['Czyszczenia']) {
+          const cRows = XLSX.utils.sheet_to_json(wb.Sheets['Czyszczenia']);
+          state.cleanings = cRows.map((r, idx) => ({
+            id: r.ID || Date.now() + 150 + idx,
+            date: r.Data_Godzina,
+            burnedKgAtClean: Number(r.Spalono_kg) || 0,
+            note: r.Uwagi || ''
           }));
         }
         if (wb.Sheets['Dziennik_Nastaw']) {
@@ -2138,9 +2709,10 @@
     if (!confirm('Czy na pewno chcesz usunąć wszystkie zapisane dane?')) return;
     state.deliveries = [];
     state.feeds = [];
+    state.cleanings = [];
     saveState();
     renderAll();
-    showToast('Wyczyszczono historię zasypów i dostaw');
+    showToast('Wyczyszczono wszystkie dane');
   }
 
   // Przełączanie zakładek
@@ -2154,8 +2726,6 @@
   });
 
   // Tryb wyświetlania: Komputer vs Telefon Android
-  const VIEW_MODE_KEY = 'kotlownia_view_mode_v1';
-
   function detectDefaultViewMode() {
     const ua = navigator.userAgent || '';
     if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || window.innerWidth <= 768) {
@@ -2181,7 +2751,6 @@
   function setViewMode(mode) {
     localStorage.setItem(VIEW_MODE_KEY, mode);
     applyViewMode(mode);
-    // Przerysuj wykresy po zmianie szerokości kontenera
     setTimeout(() => {
       renderCharts(getCalculatedMetrics());
     }, 80);
