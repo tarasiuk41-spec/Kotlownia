@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Kotłownia – Asystent Spalania Ekogroszku</title>
+  <meta name="theme-color" content="#f97316" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kotłownia" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/785/785116.png" />
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/785/785116.png" />
+
+  <!-- Chart.js & SheetJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #263349;
+      --bg-input: #0b1120;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --accent-soft: rgba(249, 115, 22, 0.15);
+      --green: #10b981;
+      --green-soft: rgba(16, 185, 129, 0.15);
+      --blue: #38bdf8;
+      --blue-soft: rgba(56, 189, 248, 0.15);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.15);
+      --amber: #f59e0b;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .brand h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .brand span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .header-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .pill {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      max-width: 1180px;
+      margin: 18px auto 0;
+      padding: 0 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { background: var(--bg-card-hover); color: var(--text-main); }
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Container & Sections */
+    .container {
+      max-width: 1180px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .kpi-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kpi-value {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .kpi-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .highlight-orange { color: var(--accent); }
+    .highlight-green { color: var(--green); }
+    .highlight-blue { color: var(--blue); }
+
+    /* Quick Action & Forms */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 860px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-bags {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .bag-btn {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 14px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.15s;
+      text-align: center;
+    }
+    .bag-btn small {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+    .bag-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .bag-btn:hover small { color: #fff; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    input, select, textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.15s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-green { background: var(--green); }
+    .btn-green:hover { background: #059669; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover { background: var(--bg-card-hover); }
+    .btn-danger {
+      background: var(--red-soft);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    /* Stats Summary Bar */
+    .period-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 600px) {
+      .period-grid { grid-template-columns: 1fr; }
+    }
+    .period-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .period-box span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .period-box strong {
+      font-size: 1.15rem;
+      display: block;
+      margin-top: 2px;
+    }
+    .period-box small {
+      color: var(--green);
+      font-size: 0.82rem;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 11px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      background: rgba(15, 23, 42, 0.5);
+    }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge-ongoing {
+      background: var(--amber);
+      color: #0f172a;
+    }
+    .badge-done {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+    .badge-active {
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+
+    /* Charts */
+    .chart-box {
+      position: relative;
+      height: 310px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: #10b981;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon">🔥</div>
+      <div>
+        <h1>Kotłownia</h1>
+        <span>Asystent spalania ekogroszku i magazynu</span>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="pill" id="liveClock">🕒 Ładowanie czasu...</div>
+      <div class="pill" id="liveWeather">🌡️ Pobieranie pogody...</div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" data-tab="dashboard">🏠 Pulpit i Zasyp</button>
+  <button class="tab-btn" data-tab="charts">📊 Wykresy i Analiza</button>
+  <button class="tab-btn" data-tab="history">📜 Historia i Dostawy</button>
+  <button class="tab-btn" data-tab="boiler">⚙️ Nastawy Sterownika</button>
+  <button class="tab-btn" data-tab="settings">💾 Ustawienia i Excel</button>
+</nav>
+
+<main class="container">
+
+  <!-- TAB 1: PULPIT I ZASYP -->
+  <section id="tab-dashboard" class="tab-panel active">
+    <div class="kpi-grid">
+      <div class="card">
+        <div class="kpi-title"><span>Stan magazynu opału</span> <span>📦</span></div>
+        <div class="kpi-value" id="kpiStockBags">0 worków</div>
+        <div class="kpi-sub" id="kpiStockDetails">0 kg | 0,00 zł</div>
+      </div>
+
+      <div class="card">
+        <div class="kpi-title"><span>Średnie spalanie (zamknięte cykle)</span> <span>🔥</span></div>
+        <div class="kpi-value highlight-orange" id="kpiAvgBurn">0,00 kg/dobę</div>
+        <div class="kpi-sub" id="kpiAvgCost">0,00 zł/dobę | 0,00 zł/kWh</div>
+      </div>
+
+      <div class="card">
+        <div class="kpi-title"><span>Prognoza – na ile wystarczy</span> <span>📅</span></div>
+        <div class="kpi-value highlight-green" id="kpiForecastDays">Brak danych</div>
+        <div class="kpi-sub" id="kpiForecastDate">Dodaj min. 2 zasypy, aby wyliczyć</div>
+      </div>
+
+      <div class="card">
+        <div class="kpi-title"><span>Bieżący zasyp (trwający cykl)</span> <span>⏳</span></div>
+        <div class="kpi-value highlight-blue" id="kpiCurrentCycle">—</div>
+        <div class="kpi-sub" id="kpiCurrentCycleSub">Brak aktywnego zasypu</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Formularz zasypu -->
+      <div class="card">
+        <h2>🪣 Załaduj podajnik (Zasyp do pełna)</h2>
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:12px;">
+          Szybki wybór liczby worków (1 worek = <strong id="lblBagWeight">25</strong> kg):
+        </p>
+        <div class="quick-bags">
+          <button type="button" class="bag-btn" onclick="quickFillBags(1)">+1 worek<small id="qb1">25 kg</small></button>
+          <button type="button" class="bag-btn" onclick="quickFillBags(2)">+2 worki<small id="qb2">50 kg</small></button>
+          <button type="button" class="bag-btn" onclick="quickFillBags(3)">+3 worki<small id="qb3">75 kg</small></button>
+          <button type="button" class="bag-btn" onclick="quickFillBags(4)">+4 worki<small id="qb4">100 kg</small></button>
+        </div>
+
+        <form id="feedForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="feedBags">Liczba worków (możesz wpisać np. 1.5)</label>
+              <input type="number" id="feedBags" step="0.1" min="0.1" value="2" required />
+            </div>
+            <div class="form-group">
+              <label for="feedDate">Data i godzina zasypu</label>
+              <input type="datetime-local" id="feedDate" required />
+            </div>
+            <div class="form-group">
+              <label for="feedTemp">Temperatura zewn. (°C)</label>
+              <input type="number" id="feedTemp" step="0.1" placeholder="np. 2.5" />
+            </div>
+            <div class="form-group">
+              <label for="feedNote">Notatka (opcjonalnie)</label>
+              <input type="text" id="feedNote" placeholder="np. czyszczenie popielnika" />
+            </div>
+          </div>
+          <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <span id="feedPreview" style="font-size:0.9rem; color:var(--text-muted);">Zasyp: 50 kg (75,00 zł)</span>
+            <button type="submit" class="btn">🔥 Zatwierdź zasyp podajnika</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Podsumowanie okresowe i dostawa -->
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div class="card">
+          <h2>📈 Zużycie w okresach (rozliczone)</h2>
+          <div class="period-grid">
+            <div class="period-box">
+              <span>Ostatnie 7 dni</span>
+              <strong id="statWeekKg">0 kg</strong>
+              <small id="statWeekPln">0,00 zł</small>
+            </div>
+            <div class="period-box">
+              <span>Bieżący miesiąc</span>
+              <strong id="statMonthKg">0 kg</strong>
+              <small id="statMonthPln">0,00 zł</small>
+            </div>
+            <div class="period-box">
+              <span>Bieżący rok / sezon</span>
+              <strong id="statYearKg">0 kg</strong>
+              <small id="statYearPln">0,00 zł</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>🚚 Dodaj dostawę do magazynu</h2>
+          <form id="deliveryForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="delBags">Liczba worków</label>
+                <input type="number" id="delBags" step="1" min="1" placeholder="np. 40" required />
+              </div>
+              <div class="form-group">
+                <label for="delDate">Data dostawy</label>
+                <input type="date" id="delDate" required />
+              </div>
+              <div class="form-group">
+                <label for="delNote">Opis / Dostawca</label>
+                <input type="text" id="delNote" placeholder="np. 1 tona Pieklorz" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-green" style="margin-top:12px; width:100%;">+ Dodaj opał do magazynu</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ostatnie wpisy -->
+    <div class="card">
+      <h2>🕒 Ostatnie zasypy (Model: zasyp zasila okres do kolejnego zasypu)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data i godzina</th>
+              <th>Wsypano</th>
+              <th>Wartość</th>
+              <th>Czas trwania</th>
+              <th>Spalanie dobowe</th>
+              <th>Temp.</th>
+              <th>Notatka</th>
+            </tr>
+          </thead>
+          <tbody id="recentFeedsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2: WYKRESY I ANALIZA -->
+  <section id="tab-charts" class="tab-panel">
+    <div class="card" style="margin-bottom:18px;">
+      <h2>🌡️ Korelacja spalania dobowego (kg/dobę) ze średnią temperaturą cyklu (°C)</h2>
+      <p style="font-size:0.84rem; color:var(--text-muted);">
+        Słupki pokazują średnie zużycie dobowe w danym cyklu między zasypami, a linia średnią temperaturę z początku i końca okresu.
+      </p>
+      <div class="chart-box">
+        <canvas id="chartCorrelation"></canvas>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>📅 Zużycie miesięczne (kg i PLN)</h2>
+        <div class="chart-box">
+          <canvas id="chartMonthly"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h2>📆 Dzienne zużycie w ostatnich 30 dniach (kg)</h2>
+        <div class="chart-box">
+          <canvas id="chartDaily30"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: HISTORIA I DOSTAWY -->
+  <section id="tab-history" class="tab-panel">
+    <div class="card" style="margin-bottom:18px;">
+      <h2>🪣 Pełna historia zasypów</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data i godzina</th>
+              <th>Worki</th>
+              <th>Waga (kg)</th>
+              <th>Koszt (PLN)</th>
+              <th>Okres (dni)</th>
+              <th>Spalanie (kg/d)</th>
+              <th>Temp. (°C)</th>
+              <th>Notatka</th>
+              <th>Akcja</th>
+            </tr>
+          </thead>
+          <tbody id="fullFeedsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🚚 Historia dostaw opału</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Worki</th>
+              <th>Waga (kg)</th>
+              <th>Szacowana wartość (PLN)</th>
+              <th>Opis</th>
+              <th>Akcja</th>
+            </tr>
+          </thead>
+          <tbody id="deliveriesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: DZIENNIK NASTAW STEROWNIKA -->
+  <section id="tab-boiler" class="tab-panel">
+    <div class="two-col">
+      <div class="card">
+        <h2>🎛️ Dodaj nowy profil nastaw sterownika</h2>
+        <form id="presetForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nazwa profilu / opału</label>
+              <input type="text" id="prName" placeholder="np. Ekogroszek 26 MJ - mrozy" required />
+            </div>
+            <div class="form-group">
+              <label>Czas podawania (s)</label>
+              <input type="number" id="prFeedTime" step="0.5" placeholder="np. 5" required />
+            </div>
+            <div class="form-group">
+              <label>Przerwa podawania (s)</label>
+              <input type="number" id="prPauseTime" step="1" placeholder="np. 35" required />
+            </div>
+            <div class="form-group">
+              <label>Moc nadmuchu (%)</label>
+              <input type="number" id="prFan" step="1" placeholder="np. 32" required />
+            </div>
+            <div class="form-group">
+              <label>Temp. zadana kotła (°C)</label>
+              <input type="number" id="prTemp" step="1" placeholder="np. 58" required />
+            </div>
+            <div class="form-group">
+              <label>Uwagi (spiek, popiół)</label>
+              <input type="text" id="prNotes" placeholder="np. sypki popiół, brak spieków" />
+            </div>
+          </div>
+          <button type="submit" class="btn" style="margin-top:14px;">💾 Zapisz nastawy</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>✅ Zapisane profile nastaw</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Profil</th>
+                <th>Podawanie / Przerwa</th>
+                <th>Nadmuch</th>
+                <th>Temp.</th>
+                <th>Uwagi</th>
+                <th>Akcja</th>
+              </tr>
+            </thead>
+            <tbody id="presetsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 5: USTAWIENIA I EXCEL -->
+  <section id="tab-settings" class="tab-panel">
+    <div class="two-col">
+      <div class="card">
+        <h2>⚙️ Parametry opału, kotła i lokalizacji</h2>
+        <form id="settingsForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="setBagWeight">Waga 1 worka (kg)</label>
+              <input type="number" id="setBagWeight" step="0.5" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="setPriceTon">Cena za 1 tonę (PLN)</label>
+              <input type="number" id="setPriceTon" step="1" min="0" required />
+            </div>
+            <div class="form-group">
+              <label for="setCalorific">Kaloryczność (MJ/kg)</label>
+              <input type="number" id="setCalorific" step="0.1" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="setEfficiency">Sprawność kotła (%)</label>
+              <input type="number" id="setEfficiency" step="1" min="10" max="100" required />
+            </div>
+            <div class="form-group">
+              <label for="setCity">Miejscowość (dla pogody)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="text" id="setCity" placeholder="np. Łapy" />
+                <button type="button" class="btn btn-outline" onclick="geocodeCity()">🔍 Szukaj</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Współrzędne (Szer. / Dł.)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="setLat" step="0.0001" placeholder="52.9906" />
+                <input type="number" id="setLon" step="0.0001" placeholder="22.8853" />
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn" style="margin-top:16px;">💾 Zapisz ustawienia</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>📊 Kopia zapasowa i Excel (.xlsx)</h2>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:14px;">
+          Eksportuj całą bazę danych kotłowni do wieloarkuszowego pliku Excel (`.xlsx`) lub wgraj wcześniej zapisany plik, aby odtworzyć dane na innym urządzeniu.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button type="button" class="btn btn-green" onclick="exportToExcel()">📥 Pobierz bazę w Excel (.xlsx)</button>
+
+          <div style="border:1px dashed var(--border); padding:14px; border-radius:10px;">
+            <label for="importExcelInput" style="display:block; margin-bottom:8px;">📤 Wgraj plik Excel (.xlsx) z kopią zapasową:</label>
+            <input type="file" id="importExcelInput" accept=".xlsx,.xls" onchange="importFromExcel(event)" />
+          </div>
+
+          <button type="button" class="btn btn-outline" onclick="loadExampleData()">🧪 Wczytaj przykładowe dane testowe (21.10 → dziś)</button>
+          <button type="button" class="btn btn-danger" onclick="resetAllData()">🗑️ Wyczyść wszystkie dane aplikacji</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast">Zapisano!</div>
+
+<script>
+  const STORAGE_KEY = 'kotlownia_app_v2';
+
+  const defaultState = {
+    settings: {
+      bagWeight: 25,
+      pricePerTon: 1500,
+      calorificMJ: 26,
+      efficiencyPct: 85,
+      city: 'Łapy',
+      lat: 52.9906,
+      lon: 22.8853
+    },
+    deliveries: [],
+    feeds: [],
+    presets: [
+      {
+        id: 1,
+        name: 'Ekogroszek 26 MJ (Standard)',
+        feedTime: 5,
+        pauseTime: 35,
+        fan: 32,
+        temp: 58,
+        notes: 'Dobry spiek, stabilna praca',
+        active: true
+      }
+    ]
+  };
+
+  let state = loadState();
+  let currentLiveTemp = null;
+  let charts = {};
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return JSON.parse(JSON.stringify(defaultState));
+      const parsed = JSON.parse(raw);
+      return {
+        settings: { ...defaultState.settings, ...(parsed.settings || {}) },
+        deliveries: parsed.deliveries || [],
+        feeds: parsed.feeds || [],
+        presets: parsed.presets || defaultState.presets
+      };
+    } catch (e) {
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? '#ef4444' : '#10b981';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // Zegar na żywo
+  function updateClock() {
+    const now = new Date();
+    const str = now.toLocaleString('pl-PL', {
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    document.getElementById('liveClock').textContent = '🕒 ' + str;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Ustawienie domyślnej daty w formularzach
+  function setDefaultFormDates() {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('feedDate').value = now.toISOString().slice(0, 16);
+    document.getElementById('delDate').value = now.toISOString().slice(0, 10);
+  }
+
+  // Pogoda z Open-Meteo
+  async function fetchLiveWeather() {
+    const { lat, lon, city } = state.settings;
+    const weatherEl = document.getElementById('liveWeather');
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.current && typeof data.current.temperature_2m === 'number') {
+        currentLiveTemp = data.current.temperature_2m;
+        weatherEl.textContent = `🌡️ ${city}: ${currentLiveTemp.toFixed(1)} °C`;
+        const feedTempInput = document.getElementById('feedTemp');
+        if (!feedTempInput.value) {
+          feedTempInput.value = currentLiveTemp.toFixed(1);
+        }
+      }
+    } catch (e) {
+      weatherEl.textContent = `🌡️ ${city}: brak połączenia`;
+    }
+  }
+
+  async function geocodeCity() {
+    const city = document.getElementById('setCity').value.trim();
+    if (!city) return;
+    try {
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=pl&format=json`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const place = data.results[0];
+        document.getElementById('setLat').value = place.latitude.toFixed(4);
+        document.getElementById('setLon').value = place.longitude.toFixed(4);
+        document.getElementById('setCity').value = place.name;
+        showToast(`Znaleziono: ${place.name} (${place.latitude.toFixed(2)}, ${place.longitude.toFixed(2)})`);
+      } else {
+        showToast('Nie znaleziono miejscowości', true);
+      }
+    } catch (e) {
+      showToast('Błąd wyszukiwania lokalizacji', true);
+    }
+  }
+
+  // Silnik obliczeniowy: ZASYP ZASILA OKRES DO NASTĘPNEGO ZASYPU
+  function getCalculatedMetrics() {
+    const bw = Number(state.settings.bagWeight) || 25;
+    const pricePerKg = (Number(state.settings.pricePerTon) || 0) / 1000;
+    const calorific = Number(state.settings.calorificMJ) || 26;
+    const eff = (Number(state.settings.efficiencyPct) || 85) / 100;
+
+    // Sortuj zasypy chronologicznie rosnąco
+    const sortedFeeds = [...state.feeds].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const cycles = [];
+    for (let i = 0; i < sortedFeeds.length; i++) {
+      const curr = sortedFeeds[i];
+      const next = sortedFeeds[i + 1] || null;
+      const weightKg = curr.bags * bw;
+      const costPln = weightKg * pricePerKg;
+
+      if (next) {
+        const t1 = new Date(curr.date).getTime();
+        const t2 = new Date(next.date).getTime();
+        const diffDays = Math.max((t2 - t1) / (1000 * 60 * 60 * 24), 0.01);
+        const dailyKg = weightKg / diffDays;
+        const dailyPln = dailyKg * pricePerKg;
+
+        // Średnia temperatura z początku i końca okresu
+        const temps = [curr.temp, next.temp].filter(v => v !== null && v !== undefined && v !== '' && !isNaN(Number(v))).map(Number);
+        const avgTemp = temps.length > 0 ? temps.reduce((a, b) => a + b, 0) / temps.length : null;
+
+        cycles.push({
+          ...curr,
+          weightKg,
+          costPln,
+          status: 'closed',
+          endDate: next.date,
+          durationDays: diffDays,
+          dailyKg,
+          dailyPln,
+          avgTemp
+        });
+      } else {
+        const nowMs = Date.now();
+        const t1 = new Date(curr.date).getTime();
+        const elapsedDays = Math.max((nowMs - t1) / (1000 * 60 * 60 * 24), 0);
+        cycles.push({
+          ...curr,
+          weightKg,
+          costPln,
+          status: 'ongoing',
+          endDate: null,
+          durationDays: elapsedDays,
+          dailyKg: null,
+          dailyPln: null,
+          avgTemp: curr.temp !== null && curr.temp !== '' ? Number(curr.temp) : null
+        });
+      }
+    }
+
+    // Stan magazynu
+    const totalDeliveredBags = state.deliveries.reduce((sum, d) => sum + Number(d.bags), 0);
+    const totalFedBags = sortedFeeds.reduce((sum, f) => sum + Number(f.bags), 0);
+    const stockBags = Math.max(0, totalDeliveredBags - totalFedBags);
+    const stockKg = stockBags * bw;
+    const stockPln = stockKg * pricePerKg;
+
+    // Średnie spalanie z zamkniętych cykli (ostatnie 5 zamkniętych cykli dla trafnej prognozy)
+    const closedCycles = cycles.filter(c => c.status === 'closed');
+    const recentClosed = closedCycles.slice(-5);
+    const totalRecentKg = recentClosed.reduce((s, c) => s + c.weightKg, 0);
+    const totalRecentDays = recentClosed.reduce((s, c) => s + c.durationDays, 0);
+    const avgDailyKg = totalRecentDays > 0 ? totalRecentKg / totalRecentDays : 0;
+    const avgDailyPln = avgDailyKg * pricePerKg;
+
+    // Koszt 1 kWh użytecznego ciepła: 1 kg daje (calorific * eff) MJ -> / 3.6 = kWh
+    const kwhPerKg = (calorific * eff) / 3.6;
+    const costPerKwh = kwhPerKg > 0 ? pricePerKg / kwhPerKg : 0;
+
+    // Prognoza na ile dni wystarczy (uwzględniając też zapas znajdujący się aktualnie w podajniku z ongoing cycle)
+    const ongoingCycle = cycles.find(c => c.status === 'ongoing') || null;
+    let remainingInHopperKg = 0;
+    if (ongoingCycle && avgDailyKg > 0) {
+      remainingInHopperKg = Math.max(0, ongoingCycle.weightKg - ongoingCycle.durationDays * avgDailyKg);
+    }
+    const totalAvailableKg = stockKg + remainingInHopperKg;
+    const forecastDays = avgDailyKg > 0 ? totalAvailableKg / avgDailyKg : null;
+
+    // Rozkład dzienny spalania z zamkniętych cykli na potrzeby statystyk tydzień/miesiąc/rok i wykresów
+    const dailyMap = {};
+    closedCycles.forEach(c => {
+      const start = new Date(c.date);
+      const end = new Date(c.endDate);
+      const steps = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+      const kgPerStep = c.weightKg / steps;
+      for (let s = 0; s < steps; s++) {
+        const d = new Date(start.getTime() + s * 24 * 60 * 60 * 1000);
+        const key = d.toISOString().slice(0, 10);
+        dailyMap[key] = (dailyMap[key] || 0) + kgPerStep;
+      }
+    });
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const currentMonthPrefix = now.toISOString().slice(0, 7);
+    const currentYearPrefix = now.toISOString().slice(0, 4);
+
+    let weekKg = 0, monthKg = 0, yearKg = 0;
+    Object.entries(dailyMap).forEach(([dayStr, kg]) => {
+      if (dayStr >= sevenDaysAgo) weekKg += kg;
+      if (dayStr.startsWith(currentMonthPrefix)) monthKg += kg;
+      if (dayStr.startsWith(currentYearPrefix)) yearKg += kg;
+    });
+
+    return {
+      bw,
+      pricePerKg,
+      cycles,
+      closedCycles,
+      ongoingCycle,
+      stockBags,
+      stockKg,
+      stockPln,
+      avgDailyKg,
+      avgDailyPln,
+      costPerKwh,
+      forecastDays,
+      dailyMap,
+      weekKg,
+      weekPln: weekKg * pricePerKg,
+      monthKg,
+      monthPln: monthKg * pricePerKg,
+      yearKg,
+      yearPln: yearKg * pricePerKg
+    };
+  }
+
+  function formatPln(val) {
+    return val.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+  }
+
+  function formatDateTime(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleString('pl-PL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function renderAll() {
+    const m = getCalculatedMetrics();
+
+    // Etykiety worków
+    document.getElementById('lblBagWeight').textContent = m.bw;
+    [1, 2, 3, 4].forEach(n => {
+      const el = document.getElementById(`qb${n}`);
+      if (el) el.textContent = `${n * m.bw} kg`;
+    });
+    updateFeedPreview();
+
+    // KPI
+    document.getElementById('kpiStockBags').textContent = `${Number(m.stockBags.toFixed(1))} worków`;
+    document.getElementById('kpiStockDetails').textContent = `${m.stockKg.toFixed(0)} kg | ${formatPln(m.stockPln)}`;
+
+    document.getElementById('kpiAvgBurn').textContent = `${m.avgDailyKg.toFixed(2)} kg/dobę`;
+    document.getElementById('kpiAvgCost').textContent = `${formatPln(m.avgDailyPln)}/dobę | ${m.costPerKwh.toFixed(2)} zł/kWh`;
+
+    if (m.forecastDays !== null && isFinite(m.forecastDays)) {
+      const daysInt = Math.floor(m.forecastDays);
+      const endDate = new Date(Date.now() + m.forecastDays * 24 * 60 * 60 * 1000);
+      document.getElementById('kpiForecastDays').textContent = `~${daysInt} dni`;
+      document.getElementById('kpiForecastDate').textContent = `Wystarczy do: ${endDate.toLocaleDateString('pl-PL')}`;
+    } else {
+      document.getElementById('kpiForecastDays').textContent = 'Brak danych';
+      document.getElementById('kpiForecastDate').textContent = 'Dodaj min. 2 zasypy, aby wyliczyć';
+    }
+
+    if (m.ongoingCycle) {
+      document.getElementById('kpiCurrentCycle').textContent = `${m.ongoingCycle.weightKg.toFixed(0)} kg (${m.ongoingCycle.bags} w.)`;
+      document.getElementById('kpiCurrentCycleSub').textContent = `Trwa od ${m.ongoingCycle.durationDays.toFixed(1)} dni (${formatDateTime(m.ongoingCycle.date)})`;
+    } else {
+      document.getElementById('kpiCurrentCycle').textContent = '—';
+      document.getElementById('kpiCurrentCycleSub').textContent = 'Brak aktywnego zasypu';
+    }
+
+    // Okresowe statystyki
+    document.getElementById('statWeekKg').textContent = `${m.weekKg.toFixed(1)} kg`;
+    document.getElementById('statWeekPln').textContent = formatPln(m.weekPln);
+    document.getElementById('statMonthKg').textContent = `${m.monthKg.toFixed(1)} kg`;
+    document.getElementById('statMonthPln').textContent = formatPln(m.monthPln);
+    document.getElementById('statYearKg').textContent = `${m.yearKg.toFixed(1)} kg`;
+    document.getElementById('statYearPln').textContent = formatPln(m.yearPln);
+
+    // Tabele zasypów (od najnowszego)
+    const reversedCycles = [...m.cycles].reverse();
+    const recentHtml = reversedCycles.slice(0, 8).map(c => `
+      <tr>
+        <td>${formatDateTime(c.date)}</td>
+        <td><strong>${c.bags} w.</strong> (${c.weightKg.toFixed(0)} kg)</td>
+        <td>${formatPln(c.costPln)}</td>
+        <td>${c.status === 'ongoing'
+          ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
+          : `<span class="badge badge-done">${c.durationDays.toFixed(1)} dni</span>`}</td>
+        <td>${c.status === 'ongoing' ? '<em>trwa...</em>' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
+        <td>${c.temp !== null && c.temp !== '' ? c.temp + ' °C' : '—'}</td>
+        <td>${c.note || '—'}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Brak zarejestrowanych zasypów.</td></tr>';
+    document.getElementById('recentFeedsBody').innerHTML = recentHtml;
+
+    const fullHtml = reversedCycles.map(c => `
+      <tr>
+        <td>${formatDateTime(c.date)}</td>
+        <td>${c.bags}</td>
+        <td>${c.weightKg.toFixed(0)} kg</td>
+        <td>${formatPln(c.costPln)}</td>
+        <td>${c.status === 'ongoing'
+          ? `<span class="badge badge-ongoing">⏳ Trwa (${c.durationDays.toFixed(1)} d)</span>`
+          : `${c.durationDays.toFixed(2)} dni`}</td>
+        <td>${c.status === 'ongoing' ? '—' : `<strong>${c.dailyKg.toFixed(2)} kg/d</strong>`}</td>
+        <td>${c.temp !== null && c.temp !== '' ? c.temp + ' °C' : '—'}</td>
+        <td>${c.note || '—'}</td>
+        <td><button class="btn btn-danger" onclick="deleteFeed(${c.id})">Usuń</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Brak wpisów.</td></tr>';
+    document.getElementById('fullFeedsBody').innerHTML = fullHtml;
+
+    // Tabela dostaw
+    const delHtml = [...state.deliveries].reverse().map(d => {
+      const w = d.bags * m.bw;
+      return `
+        <tr>
+          <td>${d.date}</td>
+          <td>${d.bags} worków</td>
+          <td>${w.toFixed(0)} kg</td>
+          <td>${formatPln(w * m.pricePerKg)}</td>
+          <td>${d.note || '—'}</td>
+          <td><button class="btn btn-danger" onclick="deleteDelivery(${d.id})">Usuń</button></td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Brak dostaw w magazynie.</td></tr>';
+    document.getElementById('deliveriesBody').innerHTML = delHtml;
+
+    // Tabela nastaw
+    const prHtml = state.presets.map(p => `
+      <tr>
+        <td>${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.feedTime}s / ${p.pauseTime}s</td>
+        <td>${p.fan}%</td>
+        <td>${p.temp} °C</td>
+        <td>${p.notes || '—'}</td>
+        <td><button class="btn btn-danger" onclick="deletePreset(${p.id})">Usuń</button></td>
+      </tr>
+    `).join('');
+    document.getElementById('presetsBody').innerHTML = prHtml;
+
+    // Ustawienia w formularzu
+    document.getElementById('setBagWeight').value = state.settings.bagWeight;
+    document.getElementById('setPriceTon').value = state.settings.pricePerTon;
+    document.getElementById('setCalorific').value = state.settings.calorificMJ;
+    document.getElementById('setEfficiency').value = state.settings.efficiencyPct;
+    document.getElementById('setCity').value = state.settings.city;
+    document.getElementById('setLat').value = state.settings.lat;
+    document.getElementById('setLon').value = state.settings.lon;
+
+    renderCharts(m);
+  }
+
+  function updateFeedPreview() {
+    const bags = Number(document.getElementById('feedBags').value) || 0;
+    const bw = Number(state.settings.bagWeight) || 25;
+    const pricePerKg = (Number(state.settings.pricePerTon) || 0) / 1000;
+    const kg = bags * bw;
+    document.getElementById('feedPreview').textContent = `Zasyp: ${kg.toFixed(1)} kg (${formatPln(kg * pricePerKg)})`;
+  }
+  document.getElementById('feedBags').addEventListener('input', updateFeedPreview);
+
+  function quickFillBags(n) {
+    document.getElementById('feedBags').value = n;
+    updateFeedPreview();
+  }
+
+  // Obsługa formularzy
+  document.getElementById('feedForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const bags = Number(document.getElementById('feedBags').value);
+    const date = document.getElementById('feedDate').value;
+    const tempVal = document.getElementById('feedTemp').value;
+    const note = document.getElementById('feedNote').value.trim();
+
+    if (!bags || bags <= 0 || !date) return;
+
+    state.feeds.push({
+      id: Date.now(),
+      bags,
+      date,
+      temp: tempVal !== '' ? Number(tempVal) : null,
+      note
+    });
+    saveState();
+    renderAll();
+    document.getElementById('feedNote').value = '';
+    setDefaultFormDates();
+    showToast(`Zapisano zasyp: ${bags} worków!`);
+  });
+
+  document.getElementById('deliveryForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const bags = Number(document.getElementById('delBags').value);
+    const date = document.getElementById('delDate').value;
+    const note = document.getElementById('delNote').value.trim();
+    if (!bags || bags <= 0 || !date) return;
+
+    state.deliveries.push({
+      id: Date.now(),
+      bags,
+      date,
+      note
+    });
+    saveState();
+    renderAll();
+    document.getElementById('delBags').value = '';
+    document.getElementById('delNote').value = '';
+    showToast(`Dodano dostawę: ${bags} worków`);
+  });
+
+  document.getElementById('presetForm').addEventListener('submit', e => {
+    e.preventDefault();
+    state.presets.forEach(p => p.active = false);
+    state.presets.push({
+      id: Date.now(),
+      name: document.getElementById('prName').value.trim(),
+      feedTime: Number(document.getElementById('prFeedTime').value),
+      pauseTime: Number(document.getElementById('prPauseTime').value),
+      fan: Number(document.getElementById('prFan').value),
+      temp: Number(document.getElementById('prTemp').value),
+      notes: document.getElementById('prNotes').value.trim(),
+      active: true
+    });
+    saveState();
+    renderAll();
+    e.target.reset();
+    showToast('Zapisano nowy profil nastaw!');
+  });
+
+  document.getElementById('settingsForm').addEventListener('submit', e => {
+    e.preventDefault();
+    state.settings = {
+      bagWeight: Number(document.getElementById('setBagWeight').value) || 25,
+      pricePerTon: Number(document.getElementById('setPriceTon').value) || 1500,
+      calorificMJ: Number(document.getElementById('setCalorific').value) || 26,
+      efficiencyPct: Number(document.getElementById('setEfficiency').value) || 85,
+      city: document.getElementById('setCity').value.trim() || 'Łapy',
+      lat: Number(document.getElementById('setLat').value) || 52.9906,
+      lon: Number(document.getElementById('setLon').value) || 22.8853
+    };
+    saveState();
+    fetchLiveWeather();
+    renderAll();
+    showToast('Ustawienia zaktualizowane!');
+  });
+
+  function deleteFeed(id) {
+    state.feeds = state.feeds.filter(f => f.id !== id);
+    saveState();
+    renderAll();
+    showToast('Usunięto wpis zasypu');
+  }
+
+  function deleteDelivery(id) {
+    state.deliveries = state.deliveries.filter(d => d.id !== id);
+    saveState();
+    renderAll();
+    showToast('Usunięto wpis dostawy');
+  }
+
+  function activatePreset(id) {
+    state.presets.forEach(p => p.active = (p.id === id));
+    saveState();
+    renderAll();
+    showToast('Zmieniono aktywny profil nastaw');
+  }
+
+  function deletePreset(id) {
+    state.presets = state.presets.filter(p => p.id !== id);
+    saveState();
+    renderAll();
+  }
+
+  // Wykresy Chart.js
+  function renderCharts(m) {
+    const commonGrid = { color: 'rgba(148, 163, 184, 0.12)' };
+    const commonTicks = { color: '#94a3b8' };
+
+    // 1. Korelacja spalania z temperaturą (zamknięte cykle)
+    const corrLabels = m.closedCycles.map(c => {
+      const d1 = new Date(c.date).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+      const d2 = new Date(c.endDate).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+      return `${d1}–${d2}`;
+    });
+    const corrKg = m.closedCycles.map(c => Number(c.dailyKg.toFixed(2)));
+    const corrTemp = m.closedCycles.map(c => c.avgTemp !== null ? Number(c.avgTemp.toFixed(1)) : null);
+
+    if (charts.corr) charts.corr.destroy();
+    charts.corr = new Chart(document.getElementById('chartCorrelation'), {
+      data: {
+        labels: corrLabels,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Spalanie dobowe (kg/dobę)',
+            data: corrKg,
+            backgroundColor: 'rgba(249, 115, 22, 0.75)',
+            borderColor: '#f97316',
+            borderWidth: 1,
+            borderRadius: 6,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: 'Śr. temp. okresu (°C)',
+            data: corrTemp,
+            borderColor: '#38bdf8',
+            backgroundColor: '#38bdf8',
+            tension: 0.3,
+            spanGaps: true,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: commonTicks, grid: commonGrid },
+          y: { position: 'left', ticks: commonTicks, grid: commonGrid, title: { display: true, text: 'kg / dobę', color: '#f97316' } },
+          y1: { position: 'right', ticks: commonTicks, grid: { drawOnChartArea: false }, title: { display: true, text: 'Temp. (°C)', color: '#38bdf8' } }
+        },
+        plugins: { legend: { labels: { color: '#f8fafc' } } }
+      }
+    });
+
+    // 2. Miesięczne
+    const monthTotals = {};
+    Object.entries(m.dailyMap).forEach(([day, kg]) => {
+      const ym = day.slice(0, 7);
+      monthTotals[ym] = (monthTotals[ym] || 0) + kg;
+    });
+    const mLabels = Object.keys(monthTotals).sort();
+    const mValues = mLabels.map(k => Number(monthTotals[k].toFixed(1)));
+
+    if (charts.monthly) charts.monthly.destroy();
+    charts.monthly = new Chart(document.getElementById('chartMonthly'), {
+      type: 'bar',
+      data: {
+        labels: mLabels,
+        datasets: [{
+          label: 'Zużycie (kg)',
+          data: mValues,
+          backgroundColor: 'rgba(16, 185, 129, 0.75)',
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { x: { ticks: commonTicks, grid: commonGrid }, y: { ticks: commonTicks, grid: commonGrid } },
+        plugins: { legend: { labels: { color: '#f8fafc' } } }
+      }
+    });
+
+    // 3. Ostatnie 30 dni
+    const last30Labels = [];
+    const last30Vals = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+      const key = d.toISOString().slice(0, 10);
+      last30Labels.push(d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }));
+      last30Vals.push(Number((m.dailyMap[key] || 0).toFixed(2)));
+    }
+
+    if (charts.daily30) charts.daily30.destroy();
+    charts.daily30 = new Chart(document.getElementById('chartDaily30'), {
+      type: 'bar',
+      data: {
+        labels: last30Labels,
+        datasets: [{
+          label: 'Spalanie dzienne (kg)',
+          data: last30Vals,
+          backgroundColor: 'rgba(249, 115, 22, 0.75)',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { x: { ticks: commonTicks, grid: commonGrid }, y: { ticks: commonTicks, grid: commonGrid } },
+        plugins: { legend: { labels: { color: '#f8fafc' } } }
+      }
+    });
+  }
+
+  // Eksport i Import Excel (SheetJS)
+  function exportToExcel() {
+    const wb = XLSX.utils.book_new();
+    const m = getCalculatedMetrics();
+
+    const feedsSheetData = m.cycles.map(c => ({
+      ID: c.id,
+      Data_Godzina: c.date,
+      Worki: c.bags,
+      Waga_kg: c.weightKg,
+      Koszt_PLN: Number(c.costPln.toFixed(2)),
+      Status: c.status === 'ongoing' ? 'Trwa' : 'Rozliczony',
+      Czas_trwania_dni: Number(c.durationDays.toFixed(2)),
+      Spalanie_dobowe_kg: c.dailyKg ? Number(c.dailyKg.toFixed(2)) : '',
+      Temperatura_C: c.temp ?? '',
+      Notatka: c.note || ''
+    }));
+
+    const delSheetData = state.deliveries.map(d => ({
+      ID: d.id,
+      Data: d.date,
+      Worki: d.bags,
+      Waga_kg: d.bags * m.bw,
+      Opis: d.note || ''
+    }));
+
+    const presetsSheetData = state.presets.map(p => ({
+      ID: p.id,
+      Nazwa: p.name,
+      Podawanie_s: p.feedTime,
+      Przerwa_s: p.pauseTime,
+      Nadmuch_proc: p.fan,
+      Temp_kotla_C: p.temp,
+      Uwagi: p.notes || '',
+      Aktywny: p.active ? 'TAK' : 'NIE'
+    }));
+
+    const settingsSheetData = [state.settings];
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(feedsSheetData), 'Historia_Zasypow');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(delSheetData), 'Dostawy');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(presetsSheetData), 'Dziennik_Nastaw');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(settingsSheetData), 'Ustawienia');
+
+    const fileName = `Kotlownia_Baza_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    showToast('Wyeksportowano plik Excel!');
+  }
+
+  function importFromExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array' });
+
+        if (wb.Sheets['Ustawienia']) {
+          const sRows = XLSX.utils.sheet_to_json(wb.Sheets['Ustawienia']);
+          if (sRows.length > 0) {
+            state.settings = { ...state.settings, ...sRows[0] };
+          }
+        }
+        if (wb.Sheets['Dostawy']) {
+          const dRows = XLSX.utils.sheet_to_json(wb.Sheets['Dostawy']);
+          state.deliveries = dRows.map((r, idx) => ({
+            id: r.ID || Date.now() + idx,
+            date: r.Data,
+            bags: Number(r.Worki),
+            note: r.Opis || ''
+          }));
+        }
+        if (wb.Sheets['Historia_Zasypow']) {
+          const fRows = XLSX.utils.sheet_to_json(wb.Sheets['Historia_Zasypow']);
+          state.feeds = fRows.map((r, idx) => ({
+            id: r.ID || Date.now() + 100 + idx,
+            date: r.Data_Godzina,
+            bags: Number(r.Worki),
+            temp: r.Temperatura_C !== '' && r.Temperatura_C !== undefined ? Number(r.Temperatura_C) : null,
+            note: r.Notatka || ''
+          }));
+        }
+        if (wb.Sheets['Dziennik_Nastaw']) {
+          const pRows = XLSX.utils.sheet_to_json(wb.Sheets['Dziennik_Nastaw']);
+          state.presets = pRows.map((r, idx) => ({
+            id: r.ID || Date.now() + 200 + idx,
+            name: r.Nazwa,
+            feedTime: Number(r.Podawanie_s),
+            pauseTime: Number(r.Przerwa_s),
+            fan: Number(r.Nadmuch_proc),
+            temp: Number(r.Temp_kotla_C),
+            notes: r.Uwagi || '',
+            active: r.Aktywny === 'TAK'
+          }));
+        }
+
+        saveState();
+        renderAll();
+        showToast('Pomyślnie wczytano dane z pliku Excel!');
+      } catch (err) {
+        showToast('Błąd odczytu pliku Excel!', true);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function loadExampleData() {
+    const now = new Date();
+    const past29 = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+    past29.setHours(18, 0, 0, 0);
+
+    const fmt = d => {
+      const c = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return c.toISOString().slice(0, 16);
+    };
+
+    state.deliveries = [
+      { id: 101, date: past29.toISOString().slice(0, 10), bags: 80, note: 'Dostawa startowa 2 tony' }
+    ];
+    state.feeds = [
+      { id: 201, date: fmt(past29), bags: 14, temp: 7.5, note: 'Zasyp 350 kg (14 worków)' },
+      { id: 202, date: fmt(now), bags: 6, temp: 1.5, note: 'Dosypanie 150 kg – nowy okres' }
+    ];
+    saveState();
+    renderAll();
+    showToast('Wczytano dane testowe (350 kg / 29 dni = 12,07 kg/d)');
+  }
+
+  function resetAllData() {
+    if (!confirm('Czy na pewno chcesz usunąć wszystkie zapisane dane?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    state = JSON.parse(JSON.stringify(defaultState));
+    renderAll();
+    showToast('Wyczyszczono wszystkie dane');
+  }
+
+  // Przełączanie zakładek
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Start aplikacji
+  setDefaultFormDates();
+  fetchLiveWeather();
+  renderAll();
+</script>
+</body>
+</html>

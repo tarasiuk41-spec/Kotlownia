@@ -1,0 +1,13 @@
+# Pliki systemowe
+.DS_Store
+Thumbs.db
+
+# Edytory kodu
+.vscode/
+.idea/
+
+# Lokalne kopie zapasowe danych z kotłowni
+*.xlsx
+*.csv
+*.json
+!manifest.json
