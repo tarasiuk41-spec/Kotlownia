@@ -654,7 +654,7 @@
 
     <div class="two-col-equal">
       <div class="card">
-        <h2>📅 Zużycie miesięczne (kg i PLN)</h2>
+        <h2>📅 Zużycie miesięczne (kg i PLN) vs śr. temp. miesiąca (°C)</h2>
         <div class="chart-box">
           <canvas id="chartMonthly"></canvas>
         </div>
@@ -1364,10 +1364,22 @@
     if (mKeys.length === 0) {
       monthItems.push('Brak rozliczonych danych miesięcznych – wykres zapełni się automatycznie po zamknięciu pierwszego cyklu zasypowego.');
     } else {
+      const dw = state.dailyWeather || {};
+      const monthTempAcc = {};
+      Object.entries(dw).forEach(([day, wObj]) => {
+        if (wObj && typeof wObj.mean === 'number') {
+          const ym = day.slice(0, 7);
+          if (!monthTempAcc[ym]) monthTempAcc[ym] = { sum: 0, count: 0 };
+          monthTempAcc[ym].sum += wObj.mean;
+          monthTempAcc[ym].count += 1;
+        }
+      });
+
       let maxM = mKeys[0];
       mKeys.forEach(k => { if (monthTotals[k] > monthTotals[maxM]) maxM = k; });
       const maxKg = monthTotals[maxM];
-      monthItems.push(`Najbardziej energochłonny miesiąc w bazie: ${maxM} – rozliczono ${maxKg.toFixed(1)} kg (${(maxKg / m.bw).toFixed(1)} worków) o wartości ${formatPln(maxKg * m.pricePerKg)}.`);
+      const maxTempTxt = monthTempAcc[maxM] ? ` przy śr. temp. dobowej ${(monthTempAcc[maxM].sum / monthTempAcc[maxM].count).toFixed(1)} °C` : '';
+      monthItems.push(`Najbardziej energochłonny miesiąc w bazie: ${maxM}${maxTempTxt} – rozliczono ${maxKg.toFixed(1)} kg (${(maxKg / m.bw).toFixed(1)} worków) o wartości ${formatPln(maxKg * m.pricePerKg)}.`);
 
       if (mKeys.length >= 2) {
         const prevM = mKeys[mKeys.length - 2];
@@ -1758,32 +1770,64 @@
       }
     });
 
+    const dw = state.dailyWeather || {};
     const monthTotals = {};
+    const monthTempAcc = {};
     Object.entries(m.dailyMap).forEach(([day, kg]) => {
       const ym = day.slice(0, 7);
       monthTotals[ym] = (monthTotals[ym] || 0) + kg;
     });
+    Object.entries(dw).forEach(([day, wObj]) => {
+      if (wObj && typeof wObj.mean === 'number') {
+        const ym = day.slice(0, 7);
+        if (!monthTempAcc[ym]) monthTempAcc[ym] = { sum: 0, count: 0 };
+        monthTempAcc[ym].sum += wObj.mean;
+        monthTempAcc[ym].count += 1;
+      }
+    });
     const mLabels = Object.keys(monthTotals).sort();
     const mValues = mLabels.map(k => Number(monthTotals[k].toFixed(1)));
+    const mTemps = mLabels.map(k => (monthTempAcc[k] && monthTempAcc[k].count > 0)
+      ? Number((monthTempAcc[k].sum / monthTempAcc[k].count).toFixed(1))
+      : null);
 
     if (charts.monthly) charts.monthly.destroy();
     charts.monthly = new Chart(document.getElementById('chartMonthly'), {
-      type: 'bar',
       data: {
         labels: mLabels,
-        datasets: [{
-          label: 'Zużycie (kg)',
-          data: mValues,
-          backgroundColor: 'rgba(16, 185, 129, 0.75)',
-          borderColor: '#10b981',
-          borderWidth: 1,
-          borderRadius: 6
-        }]
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Zużycie (kg)',
+            data: mValues,
+            backgroundColor: 'rgba(16, 185, 129, 0.75)',
+            borderColor: '#10b981',
+            borderWidth: 1,
+            borderRadius: 6,
+            yAxisID: 'y'
+          },
+          {
+            type: 'line',
+            label: 'Śr. temp. dobowa miesiąca (°C)',
+            data: mTemps,
+            borderColor: '#38bdf8',
+            backgroundColor: '#38bdf8',
+            borderWidth: 2.5,
+            pointRadius: 4,
+            tension: 0.3,
+            spanGaps: true,
+            yAxisID: 'y1'
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: { x: { ticks: commonTicks, grid: commonGrid }, y: { ticks: commonTicks, grid: commonGrid } },
+        scales: {
+          x: { ticks: commonTicks, grid: commonGrid },
+          y: { position: 'left', ticks: commonTicks, grid: commonGrid, title: { display: true, text: 'kg', color: '#10b981' } },
+          y1: { position: 'right', ticks: commonTicks, grid: { drawOnChartArea: false }, title: { display: true, text: 'Temp. (°C)', color: '#38bdf8' } }
+        },
         plugins: { legend: { labels: { color: '#f8fafc' } } }
       }
     });
@@ -1791,7 +1835,6 @@
     const last30Labels = [];
     const last30Vals = [];
     const last30Temps = [];
-    const dw = state.dailyWeather || {};
     for (let i = 29; i >= 0; i--) {
       const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
       const key = d.toISOString().slice(0, 10);
