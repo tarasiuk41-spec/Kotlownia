@@ -518,7 +518,10 @@
     <div class="two-col">
       <!-- Formularz zasypu -->
       <div class="card">
-        <h2>🪣 Załaduj podajnik (Zasyp do pełna)</h2>
+        <h2 style="margin-bottom:4px;">🪣 Załaduj podajnik (Zasyp do pełna)</h2>
+        <p id="fullStockPriceInfo" style="font-size:0.86rem; color:var(--green); font-weight:600; margin-bottom:10px;">
+          Pełny magazyn (wartość początkowa): 0,00 zł (0 worków / 0 kg)
+        </p>
         <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:12px;">
           Szybki wybór liczby worków (1 worek = <strong id="lblBagWeight">25</strong> kg):
         </p>
@@ -1101,9 +1104,15 @@
       if (dayStr.startsWith(currentYearPrefix)) yearKg += kg;
     });
 
+    const totalDeliveredKg = totalDeliveredBags * bw;
+    const totalDeliveredPln = totalDeliveredKg * pricePerKg;
+
     return {
       bw,
       pricePerKg,
+      totalDeliveredBags,
+      totalDeliveredKg,
+      totalDeliveredPln,
       cycles,
       closedCycles,
       ongoingCycle,
@@ -1272,6 +1281,12 @@
       if (el) el.textContent = `${n * m.bw} kg`;
     });
     updateFeedPreview();
+
+    // Pełny magazyn (wartość wyjściowa z dostaw)
+    const fullPriceEl = document.getElementById('fullStockPriceInfo');
+    if (fullPriceEl) {
+      fullPriceEl.textContent = `Pełny magazyn (cena wyjściowa): ${formatPln(m.totalDeliveredPln)} (${Number(m.totalDeliveredBags.toFixed(1))} worków / ${m.totalDeliveredKg.toFixed(0)} kg)`;
+    }
 
     // KPI
     document.getElementById('kpiStockBags').textContent = `${Number(m.stockBags.toFixed(1))} worków`;
