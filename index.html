@@ -1326,12 +1326,12 @@
               <input type="text" id="prName" placeholder="np. Ekogroszek 26 MJ - mrozy" required />
             </div>
             <div class="form-group">
-              <label>Czas podawania (s)</label>
-              <input type="number" id="prFeedTime" step="0.5" placeholder="np. 5" required />
+              <label>% pracy podajnika</label>
+              <input type="number" id="prFeedTime" step="1" placeholder="np. 20" required />
             </div>
             <div class="form-group">
-              <label>Przerwa podawania (s)</label>
-              <input type="number" id="prPauseTime" step="1" placeholder="np. 35" required />
+              <label>Cykl podajnika</label>
+              <input type="number" id="prPauseTime" step="1" placeholder="np. 40" required />
             </div>
             <div class="form-group">
               <label>Moc nadmuchu (%)</label>
@@ -1358,7 +1358,7 @@
               <tr>
                 <th>Status</th>
                 <th>Profil</th>
-                <th>Podawanie / Przerwa</th>
+                <th>% pracy / Cykl</th>
                 <th>Nadmuch</th>
                 <th>Temp.</th>
                 <th>Uwagi</th>
@@ -2415,7 +2415,7 @@
       <tr>
         <td data-label="Status">${p.active ? '<span class="badge badge-active">AKTYWNY</span>' : `<button class="btn btn-outline btn-sm" onclick="activatePreset(${p.id})">Ustaw</button>`}</td>
         <td data-label="Profil"><strong>${p.name}</strong></td>
-        <td data-label="Podawanie / Przerwa">${p.feedTime}s / ${p.pauseTime}s</td>
+        <td data-label="Podawanie / Przerwa">${p.feedTime}% / ${p.pauseTime}s</td>
         <td data-label="Nadmuch">${p.fan}%</td>
         <td data-label="Temp. kotła">${p.temp} °C</td>
         <td data-label="Uwagi">${p.notes || '—'}</td>
